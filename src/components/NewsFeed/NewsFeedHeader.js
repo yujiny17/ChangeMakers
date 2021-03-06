@@ -2,27 +2,29 @@ import React from "react";
 import { Header } from "react-native-elements";
 import { StyleSheet } from "react-native";
 
-function NewsFeedHeader() {
-  return (
-    <Header
-      leftComponent={{ text: "Home", style: { color: "#323232" } }}
-      rightComponent={{ text: "World", color: "#323232" }}
-      containerStyle={styles.container}
-      rightContainerStyle={styles.rightContainer}
-      centerContainerStyle={styles.centerContainer}
-      leftContainerStyle={styles.leftContainer}
-    />
-  );
+class NewsFeedHeader extends React.Component {
+  render() {
+    return (
+      <Header
+        leftComponent={{ text: "Home", style: { color: "#323232" } }}
+        rightComponent={{ text: "World", color: "#323232" }}
+        containerStyle={styles.container}
+        rightContainerStyle={styles.rightContainer}
+        centerContainerStyle={styles.centerContainer}
+        leftContainerStyle={styles.leftContainer}
+      />
+    );
+  }
 }
 
 export default NewsFeedHeader;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#F6F6F6",
+    backgroundColor: "#F8F8F8",
     justifyContent: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#323232",
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "#E9E9E9",
     paddingVertical: 15,
   },
   rightContainer: {

@@ -6,7 +6,6 @@ import store from "./src/store/store";
 
 const App = (props) => {
   return (
-    // <Provider store={store()}>
     <Provider store={store}>
       <HybridApp />
     </Provider>

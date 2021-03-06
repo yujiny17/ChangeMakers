@@ -46,7 +46,7 @@ class NewsFeedBody extends React.Component {
 
 const styles = StyleSheet.create({
   mainContainer: {
-    backgroundColor: "#F6F6F6",
+    backgroundColor: "#FCFCFC",
     justifyContent: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#323232",
