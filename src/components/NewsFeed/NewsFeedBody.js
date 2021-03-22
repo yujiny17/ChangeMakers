@@ -1,7 +1,9 @@
 import React from "react";
-import { StatusBar, StyleSheet, Text, View } from "react-native";
+import { Dimensions, FlatList, View, Text } from "react-native";
 import { connect } from "react-redux";
 import { fetchPosts } from "../../actions/NewsFeed";
+import Post from "../Post";
+import constants from "../../constants/constants";
 
 class NewsFeedBody extends React.Component {
   constructor(props) {
@@ -14,45 +16,31 @@ class NewsFeedBody extends React.Component {
   }
 
   componentDidMount() {
-    console.log("about to mount");
+    console.log("news feed body is about to mount");
     this.props.fetchPosts();
+  }
+
+  _renderPost({ item }) {
+    return <Post post={item} key={item.id}></Post>;
   }
 
   render() {
     if (this.state.loading) {
+      return <Text style={{ color: "red", fontSize: 30 }}>Loading!!</Text>;
+    } else if (!this.state.loading && this.props.data.length > 0) {
       return (
-        <Text style={{ color: "red", fontSize: 30 }}>I'm still loading!!</Text>
+        <FlatList
+          data={this.props.data}
+          renderItem={this._renderPost}
+          keyExtractor={(item) => item.id}
+          style={{}}
+        ></FlatList>
       );
-    } else if (this.state.error) {
+    } else {
       return <Text style={{ color: "red", fontSize: 30 }}>ERROR</Text>;
     }
-
-    // let posts = this.props.data;
-    // for (var post of posts) {
-    //   console.log("Post", post.title);
-    // }
-
-    return (
-      <View>
-        {this.props.data.map((post) => (
-          <View key={post.id + "View"} style={styles.mainContainer}>
-            <Text key={post.id}>{post.title}</Text>
-          </View>
-        ))}
-      </View>
-    );
   }
 }
-
-const styles = StyleSheet.create({
-  mainContainer: {
-    backgroundColor: "#FCFCFC",
-    justifyContent: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "#323232",
-    paddingVertical: 15,
-  },
-});
 
 function mapStateToProps(state) {
   return {

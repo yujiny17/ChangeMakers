@@ -1,31 +1,40 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { SafeAreaProvider } from "react-native-safe-area-context";
-import NewsFeed from "./components/NewsFeed/NewsFeed";
-import AppStatusBar from "./components/AppStatusBar";
-import ToolBar from "./components/ToolBar";
+import { MainApp, LogIn, CreateAccount } from "./components/screens/index";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import Loading from "./components/screens/Loading";
+const AuthStack = createStackNavigator();
 
-export default function App() {
+const AuthStackScreen = () => (
+  <AuthStack.Navigator>
+    <AuthStack.Screen
+      name="LogIn"
+      component={LogIn}
+      options={{ headerShown: false }}
+    />
+    <AuthStack.Screen
+      name="CreateAccount"
+      component={CreateAccount}
+      options={{ title: "" }}
+    />
+  </AuthStack.Navigator>
+);
+
+export default () => {
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [userToken, setUser] = React.useState(null);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(!isLoading);
+      // setUser({});
+    }, 500);
+  }, []);
+
   return (
-    <SafeAreaProvider>
-      <View style={styles.container}>
-        <AppStatusBar />
-        <NewsFeed />
-        <View style={styles.container}>
-          {/* <AppStatusBar /> */}
-          <Text>Let's start coding!</Text>
-        </View>
-        <ToolBar />
-      </View>
-    </SafeAreaProvider>
+    <NavigationContainer>
+      {isLoading ? <Loading /> : userToken ? <MainApp /> : <AuthStackScreen />}
+    </NavigationContainer>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
+};

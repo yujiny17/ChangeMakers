@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Icon } from "react-native-elements";
 import { View, StyleSheet, Dimensions } from "react-native";
+import constants from "../constants/constants";
 
 class ToolBar extends React.Component {
   render() {
@@ -48,19 +49,20 @@ export default ToolBar;
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const styles = StyleSheet.create({
   ToolBarContainer: {
-    height: "10%",
+    // height: constants.styleConstants.rowHeight,
     width: "100%",
+    borderTopWidth: StyleSheet.hairlineWidth,
     backgroundColor: "#F8F8F8",
     flexDirection: "row",
+    justifyContent: "center",
   },
   HomeButton: {
-    height: "100%",
     width: SCREEN_WIDTH * 0.5,
   },
   HomeIconContainer: {},
   HomeIcon: {
-    height: "100%",
-    width: "100%",
+    padding: 0,
+    flexDirection: "column",
     justifyContent: "center",
   },
 });

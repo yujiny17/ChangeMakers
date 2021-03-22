@@ -22,6 +22,7 @@ function* fetchPostsAsync() {
     // console.log("SAGA: fetchPosts", put({ type: FETCH_POSTS_REQUEST }));
     // const posts = yield fetchAsync(Api.getPosts);
     const posts = [testPost1, testPost2];
+    // const posts = [testPost1];
     yield put({
       type: FETCH_POSTS_SUCCESS,
       data: posts,
