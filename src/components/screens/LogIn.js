@@ -9,6 +9,9 @@ import {
 } from "react-native";
 import constants from "../../constants/constants";
 import CreateAccount from "./CreateAccount";
+import { Auth } from "aws-amplify";
+import { AuthContext } from "../../context/AuthContext";
+import errorMessage from "../ErrorMessage";
 
 class LogIn extends React.Component {
   constructor(props) {
@@ -16,7 +19,20 @@ class LogIn extends React.Component {
     this.state = {
       username: "",
       password: "",
+      error: "",
     };
+  }
+
+  async _signIn(username, password) {
+    try {
+      const user = await Auth.signIn(username, password);
+      console.log("Signing in user:", user.username);
+      this.context.setUserToken(user.username);
+    } catch (error) {
+      console.log("Error signing in", error);
+      this.setState({ error: error.message });
+    }
+    return;
   }
 
   _validate_fields(username, password) {
@@ -27,70 +43,83 @@ class LogIn extends React.Component {
       alert("Please input password");
       return false;
     }
-    // add in check for unique username
     return true;
   }
 
-  _login() {
-    username = this.state.username;
-    password = this.state.password;
+  _submit() {
+    let username = this.state.username;
+    let password = this.state.password;
     if (this._validate_fields(username, password) == false) return;
-    // call api
+    this._signIn(username, password);
     return;
   }
 
   render() {
+    let error;
+    if (this.state.error != "") {
+      error = errorMessage(this.state.error);
+    }
     return (
-      <View style={styles.container}>
-        <View style={styles.contentContainer}>
-          <Text style={styles.titleText}>Log In</Text>
-          <TextInput
-            placeholder={"Username"}
-            style={styles.inputContainer}
-            placeholderTextColor="#808080"
-            backgroundColor={"#FBFBFB"}
-            onChangeText={(input) => this.setState({ username: input })}
-            spellCheck={false}
-            autoCapitalize={"none"}
-            autoCompleteType={"username"}
-          />
-          <TextInput
-            placeholder={"Password"}
-            style={styles.inputContainer}
-            placeholderTextColor="#808080"
-            backgroundColor={"#FBFBFB"}
-            onChangeText={(input) => this.setState({ password: input })}
-            secureTextEntry={true}
-            spellCheck={false}
-            autoCapitalize={"none"}
-            autoCompleteType={"password"}
-          />
-          <TouchableOpacity
-            style={styles.logInBtn}
-            activeOpacity={0.5}
-            onPress={() => this._login()}
-          >
-            <Text style={styles.logInText}>Log In</Text>
-          </TouchableOpacity>
-          <View style={styles.orContainer}>
-            <Text
-              style={{ fontSize: 20, color: constants.styleConstants.black }}
-            >
-              Or
-            </Text>
+      <AuthContext.Consumer>
+        {() => (
+          <View style={styles.container}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.titleText}>Log In</Text>
+              <TextInput
+                placeholder={"Username"}
+                style={styles.inputContainer}
+                placeholderTextColor="#808080"
+                backgroundColor={"#FBFBFB"}
+                onChangeText={(input) => this.setState({ username: input })}
+                spellCheck={false}
+                autoCapitalize={"none"}
+                autoCompleteType={"username"}
+              />
+              <TextInput
+                placeholder={"Password"}
+                style={styles.inputContainer}
+                placeholderTextColor="#808080"
+                backgroundColor={"#FBFBFB"}
+                onChangeText={(input) => this.setState({ password: input })}
+                secureTextEntry={true}
+                spellCheck={false}
+                autoCapitalize={"none"}
+                autoCompleteType={"password"}
+              />
+              {error}
+              <TouchableOpacity
+                style={styles.logInBtn}
+                activeOpacity={0.5}
+                onPress={() => this._submit()}
+              >
+                <Text style={styles.logInText}>Log In</Text>
+              </TouchableOpacity>
+              <View style={styles.orContainer}>
+                <Text
+                  style={{
+                    fontSize: 20,
+                    color: constants.styleConstants.black,
+                  }}
+                >
+                  Or
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.createAccountBtn}
+                activeOpacity={0.5}
+                onPress={() => this.props.navigation.push("CreateAccount")}
+              >
+                <Text style={styles.createAccountTxt}>Create Account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-          <TouchableOpacity
-            style={styles.createAccountBtn}
-            activeOpacity={0.5}
-            onPress={() => this.props.navigation.push("CreateAccount")}
-          >
-            <Text style={styles.createAccountTxt}>Create Account</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+        )}
+      </AuthContext.Consumer>
     );
   }
 }
+
+LogIn.contextType = AuthContext; // to access context through this.context
 
 const styles = StyleSheet.create({
   container: {

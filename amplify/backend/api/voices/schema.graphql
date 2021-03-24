@@ -1,0 +1,9 @@
+type Post @model {
+  id: ID!
+  user: String!
+  title: String
+  content: String
+}
+
+# action items, reactions (# of each), comments,
+# tag other accounts, sources, text, images, videos, links!!, links to in-app posts

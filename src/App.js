@@ -3,38 +3,57 @@ import { MainApp, LogIn, CreateAccount } from "./components/screens/index";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Loading from "./components/screens/Loading";
+
+import { AuthContext } from "./context/AuthContext";
+
+import Amplify, { Auth } from "aws-amplify";
+import config from "./aws-exports";
+Amplify.configure(config);
+
 const AuthStack = createStackNavigator();
 
-const AuthStackScreen = () => (
-  <AuthStack.Navigator>
-    <AuthStack.Screen
-      name="LogIn"
-      component={LogIn}
-      options={{ headerShown: false }}
-    />
-    <AuthStack.Screen
-      name="CreateAccount"
-      component={CreateAccount}
-      options={{ title: "" }}
-    />
-  </AuthStack.Navigator>
-);
+class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isLoading: true,
+      userToken: null,
+      setUserToken: this.setUserToken,
+    };
+  }
 
-export default () => {
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [userToken, setUser] = React.useState(null);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  setUserToken = (userToken) => {
+    this.setState({ userToken: userToken });
+  };
 
-  React.useEffect(() => {
-    setTimeout(() => {
-      setIsLoading(!isLoading);
-      // setUser({});
-    }, 500);
-  }, []);
+  render() {
+    const AuthStackScreen = () => (
+      <AuthStack.Navigator>
+        <AuthStack.Screen
+          name="LogIn"
+          component={LogIn}
+          options={{ headerShown: false }}
+        />
+        <AuthStack.Screen
+          name="CreateAccount"
+          component={CreateAccount}
+          options={{ title: "" }}
+        />
+      </AuthStack.Navigator>
+    );
+    return (
+      <AuthContext.Provider value={this.state}>
+        <NavigationContainer>
+          {this.state.userToken ? <MainApp /> : <AuthStackScreen />}
+        </NavigationContainer>
+      </AuthContext.Provider>
+    );
+  }
+}
 
-  return (
-    <NavigationContainer>
-      {isLoading ? <Loading /> : userToken ? <MainApp /> : <AuthStackScreen />}
-    </NavigationContainer>
-  );
-};
+export default App;
+
+/* <NavigationContainer>
+      {this.state.isLoading ? <Loading /> : this.state.userToken
+       ? <MainApp /> : <AuthStackScreen />}
+    </NavigationContainer> */
