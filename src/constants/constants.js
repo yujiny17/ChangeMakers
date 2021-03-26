@@ -13,5 +13,6 @@ export default {
     orange: "#F86446",
     darkOrange: "#C6503A",
     black: "#0E0E0E",
+    postBackgroundColor: "#FCFCFC",
   },
 };

@@ -1,7 +1,10 @@
 import React from "react";
 import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 import { Icon } from "react-native-elements";
-import constants from "../constants/constants.js";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from "@react-navigation/native";
+
+import constants from "../../constants/constants";
 
 class Post extends React.Component {
   constructor(props) {
@@ -18,13 +21,28 @@ class Post extends React.Component {
       screenWidth: Dimensions.get("window").width,
     });
   }
+
+  focusPost() {
+    if (!this.props.focusPost) {
+      const post = this.props.post;
+      const { navigation } = this.props;
+      console.log("Post Focus for post:", post.id);
+      navigation.navigate("PostFocus", { post: post });
+    }
+    return;
+  }
+
   render() {
     const imageHeight = Math.floor(this.state.screenWidth * 1.1);
     const imageUri =
       "https://media-exp1.licdn.com/dms/image/C4E03AQFoTpoq2QHAVA/profile-displayphoto-shrink_100_100/0/1588884556380?e=1620864000&v=beta&t=oaJ-DWkzGysRlkZDynxup5BK8qFpn-uEVmyQ1Tuu5qM";
     return (
       <View style={styles.container}>
-        <View style={styles.userBar}>
+        <TouchableOpacity
+          style={styles.userBar}
+          onPress={() => this.focusPost()}
+          activeOpacity={1.0}
+        >
           <View style={styles.userPhotoName}>
             <Image
               style={styles.userPhoto}
@@ -36,6 +54,7 @@ class Post extends React.Component {
               <Text style={styles.userName}>Yujin</Text>
             </View>
           </View>
+
           <View>
             <Text
               style={{
@@ -46,9 +65,13 @@ class Post extends React.Component {
               ...
             </Text>
           </View>
-        </View>
-        {/* Use UUIDs!!!! */}
-        <View key={this.props.post.id + "View"} style={styles.postContainer}>
+        </TouchableOpacity>
+        <TouchableOpacity
+          key={this.props.post.id + "View"}
+          style={styles.postContainer}
+          onPress={() => this.focusPost(this.props.post.id)}
+          activeOpacity={1.0}
+        >
           <Text key={this.props.post.id} style={styles.titleText}>
             {this.props.post.title}
           </Text>
@@ -59,7 +82,7 @@ class Post extends React.Component {
                 "https://www.therobinreport.com/wp-content/uploads/2015/09/activism_featured1-850x560.jpg",
             }}
           />
-        </View>
+        </TouchableOpacity>
         <View style={styles.iconBar}>
           <Icon
             name="arrow-up-outline"
@@ -97,15 +120,20 @@ class Post extends React.Component {
     );
   }
 }
-export default Post;
+export default function (props) {
+  const navigation = useNavigation();
+  return <Post {...props} navigation={navigation} />;
+}
 
 const styles = StyleSheet.create({
   container: {
+    width: 100 + "%",
+    backgroundColor: constants.styleConstants.postBackgroundColor,
     borderBottomWidth: constants.styleConstants.betweenPostsWidth,
     borderBottomColor: constants.styleConstants.grey,
+    paddingTop: 5,
   },
   postContainer: {
-    backgroundColor: "#FCFCFC",
     justifyContent: "center",
     padding: 10,
   },

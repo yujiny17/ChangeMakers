@@ -1,8 +1,8 @@
 import React from "react";
-import { Dimensions, FlatList, View, Text } from "react-native";
+import { FlatList, Text } from "react-native";
 import { connect } from "react-redux";
 import { fetchPosts } from "../../actions/NewsFeed";
-import Post from "../Post";
+import Post from "../Post/Post";
 import constants from "../../constants/constants";
 
 class NewsFeedBody extends React.Component {
@@ -21,7 +21,7 @@ class NewsFeedBody extends React.Component {
   }
 
   _renderPost({ item }) {
-    return <Post post={item} key={item.id}></Post>;
+    return <Post post={item} key={item.id} focusPost={false}></Post>;
   }
 
   render() {
@@ -33,7 +33,7 @@ class NewsFeedBody extends React.Component {
           data={this.props.data}
           renderItem={this._renderPost}
           keyExtractor={(item) => item.id}
-          style={{}}
+          style={{ width: 100 + "%" }}
         ></FlatList>
       );
     } else {

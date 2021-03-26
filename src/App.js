@@ -1,5 +1,11 @@
 import React from "react";
-import { MainApp, LogIn, CreateAccount } from "./components/screens/index";
+import MainApp from "./components/screens/MainApp";
+import {
+  LogIn,
+  CreateAccount,
+  NewsFeed,
+  PostFocus,
+} from "./components/screens/index";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Loading from "./components/screens/Loading";
@@ -11,6 +17,7 @@ import config from "./aws-exports";
 Amplify.configure(config);
 
 const AuthStack = createStackNavigator();
+const MainStack = createStackNavigator();
 
 class App extends React.Component {
   constructor(props) {
@@ -44,7 +51,8 @@ class App extends React.Component {
     return (
       <AuthContext.Provider value={this.state}>
         <NavigationContainer>
-          {this.state.userToken ? <MainApp /> : <AuthStackScreen />}
+          {/* {this.state.userToken ? <MainApp /> : <AuthStackScreen />} */}
+          <MainApp />
         </NavigationContainer>
       </AuthContext.Provider>
     );

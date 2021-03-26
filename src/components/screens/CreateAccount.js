@@ -10,6 +10,7 @@ import {
 import constants from "../../constants/constants";
 import errorMessage from "../ErrorMessage";
 import { Auth } from "aws-amplify";
+import { AuthContext } from "../../context/AuthContext";
 
 class CreateAccount extends React.Component {
   constructor(props) {
@@ -18,7 +19,7 @@ class CreateAccount extends React.Component {
       username: "",
       email: "",
       password: "",
-      validUsername: true,
+      userNameError: "",
       validEmail: true,
       validPassword: true,
     };
@@ -66,12 +67,14 @@ class CreateAccount extends React.Component {
           email,
         },
       });
-      Auth.si;
-      console.log("user:", user, "\n", userConfirmed, "\n", userSub);
+      console.log("Created Account for user:", user);
+      this.context.setUserToken(user.username);
     } catch (error) {
       console.log("ERROR: sign up", error);
       if (error.code == "UsernameExistsException") {
-        this.setState({ validUsername: true });
+        this.setState({ userNameError: "Username is taken" });
+      } else {
+        this.setState({ userNameError: error.message });
       }
     }
   }
@@ -84,12 +87,18 @@ class CreateAccount extends React.Component {
     this._signUp(username, password, email);
   }
 
+  _changeUsername(input) {
+    this.setState({ username: input });
+    this.setState({ userNameError: "" });
+    return;
+  }
+
   render() {
     let usernameErrorMessage;
     let emailErrorMessage;
     let passwordErrorMessage;
-    if (!this.state.validUsername) {
-      usernameErrorMessage = errorMessage("Username is already taken");
+    if (this.state.userNameError != "") {
+      usernameErrorMessage = errorMessage(this.state.userNameError);
     }
     if (!this.state.validEmail) {
       emailErrorMessage = errorMessage("Please enter a valid email");
@@ -100,55 +109,61 @@ class CreateAccount extends React.Component {
       );
     }
     return (
-      <View style={styles.container}>
-        <View style={styles.contentContainer}>
-          <Text style={styles.titleText}>Join Voices</Text>
-          <TextInput
-            placeholder={"Username"}
-            style={styles.inputContainer}
-            placeholderTextColor="#808080"
-            backgroundColor={"#FBFBFB"}
-            onChangeText={(input) => this.setState({ username: input })}
-            spellCheck={false}
-            autoCapitalize={"none"}
-            autoCompleteType={"off"}
-          />
-          {usernameErrorMessage}
-          <TextInput
-            placeholder={"Email"}
-            style={styles.inputContainer}
-            placeholderTextColor="#808080"
-            backgroundColor={"#FBFBFB"}
-            onChangeText={(input) => this.setState({ email: input })}
-            spellCheck={false}
-            autoCapitalize={"none"}
-            autoCompleteType={"off"}
-          />
-          {emailErrorMessage}
-          <TextInput
-            placeholder={"Password"}
-            style={styles.inputContainer}
-            placeholderTextColor="#808080"
-            backgroundColor={"#FBFBFB"}
-            onChangeText={(input) => this.setState({ password: input })}
-            secureTextEntry={true}
-            spellCheck={false}
-            autoCapitalize={"none"}
-            autoCompleteType={"off"}
-          />
-          {passwordErrorMessage}
-          <TouchableOpacity
-            style={styles.createAccountBtn}
-            activeOpacity={0.5}
-            onPress={() => this._submit()}
-          >
-            <Text style={styles.createAccountText}>Continue</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <AuthContext.Consumer>
+        {() => (
+          <View style={styles.container}>
+            <View style={styles.contentContainer}>
+              <Text style={styles.titleText}>Join Voices</Text>
+              <TextInput
+                placeholder={"Username"}
+                style={styles.inputContainer}
+                placeholderTextColor="#808080"
+                backgroundColor={"#FBFBFB"}
+                onChangeText={(input) => this._changeUsername(input)}
+                spellCheck={false}
+                autoCapitalize={"none"}
+                autoCompleteType={"off"}
+              />
+              {usernameErrorMessage}
+              <TextInput
+                placeholder={"Email"}
+                style={styles.inputContainer}
+                placeholderTextColor="#808080"
+                backgroundColor={"#FBFBFB"}
+                onChangeText={(input) => this.setState({ email: input })}
+                spellCheck={false}
+                autoCapitalize={"none"}
+                autoCompleteType={"off"}
+              />
+              {emailErrorMessage}
+              <TextInput
+                placeholder={"Password"}
+                style={styles.inputContainer}
+                placeholderTextColor="#808080"
+                backgroundColor={"#FBFBFB"}
+                onChangeText={(input) => this.setState({ password: input })}
+                secureTextEntry={true}
+                spellCheck={false}
+                autoCapitalize={"none"}
+                autoCompleteType={"off"}
+              />
+              {passwordErrorMessage}
+              <TouchableOpacity
+                style={styles.createAccountBtn}
+                activeOpacity={0.5}
+                onPress={() => this._submit()}
+              >
+                <Text style={styles.createAccountText}>Continue</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </AuthContext.Consumer>
     );
   }
 }
+
+CreateAccount.contextType = AuthContext; // to access context through this.context
 
 export default CreateAccount;
 

@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Button,
   StyleSheet,
   TouchableOpacity,
   Text,
@@ -8,7 +7,6 @@ import {
   View,
 } from "react-native";
 import constants from "../../constants/constants";
-import CreateAccount from "./CreateAccount";
 import { Auth } from "aws-amplify";
 import { AuthContext } from "../../context/AuthContext";
 import errorMessage from "../ErrorMessage";
@@ -107,7 +105,7 @@ class LogIn extends React.Component {
               <TouchableOpacity
                 style={styles.createAccountBtn}
                 activeOpacity={0.5}
-                onPress={() => this.props.navigation.push("CreateAccount")}
+                onPress={() => this.props.navigation.navigate("CreateAccount")}
               >
                 <Text style={styles.createAccountTxt}>Create Account</Text>
               </TouchableOpacity>
