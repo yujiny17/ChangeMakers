@@ -14,5 +14,7 @@ export default {
     darkOrange: "#C6503A",
     black: "#0E0E0E",
     postBackgroundColor: "#FCFCFC",
+    selectedImageHeight: 100,
+    selectedImageWidth: 100,
   },
 };

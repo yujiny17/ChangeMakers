@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "api": {
+      "voices": [
+        "Query",
+        "Mutation",
+        "Subscription"
+      ],
+      "graphQL": [
+        "create",
+        "read"
+      ]
+
+    }
+  },
+  "lambdaLayers": []
+}

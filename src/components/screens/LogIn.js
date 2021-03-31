@@ -9,6 +9,7 @@ import {
 import constants from "../../constants/constants";
 import { Auth } from "aws-amplify";
 import { AuthContext } from "../../context/AuthContext";
+import { storeToken, getToken } from "../../UserCredentials";
 import errorMessage from "../ErrorMessage";
 
 class LogIn extends React.Component {
@@ -25,7 +26,9 @@ class LogIn extends React.Component {
     try {
       const user = await Auth.signIn(username, password);
       console.log("Signing in user:", user.username);
-      this.context.setUserToken(user.username);
+
+      storeToken(username, password);
+      this.context.setUserToken(username);
     } catch (error) {
       console.log("Error signing in", error);
       this.setState({ error: error.message });
@@ -50,6 +53,29 @@ class LogIn extends React.Component {
     if (this._validate_fields(username, password) == false) return;
     this._signIn(username, password);
     return;
+  }
+
+  async _checkUser() {
+    let user = await getToken();
+    // let user = null;
+    if (user != null) {
+      try {
+        const authUser = await Auth.signIn(user.username, user.password);
+        this.context.setUserToken(authUser.username);
+      } catch (error) {
+        console.log(
+          "User token exists but could not authenticate with Cognito",
+          error
+        );
+      }
+      // console.log(user, "is logged in");
+      console.log(user.username, "is logged in");
+    }
+  }
+
+  componentDidMount() {
+    // check if already signed in
+    this._checkUser();
   }
 
   render() {

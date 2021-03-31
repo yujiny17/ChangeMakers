@@ -7,10 +7,14 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { v4 as uuidv4 } from "uuid";
+import { API, Auth, graphqlOperation } from "aws-amplify";
+import { AuthContext } from "../../context/AuthContext";
+
+import { createUser } from "../../graphql/mutations";
+
 import constants from "../../constants/constants";
 import errorMessage from "../ErrorMessage";
-import { Auth } from "aws-amplify";
-import { AuthContext } from "../../context/AuthContext";
 
 class CreateAccount extends React.Component {
   constructor(props) {
@@ -22,6 +26,7 @@ class CreateAccount extends React.Component {
       userNameError: "",
       validEmail: true,
       validPassword: true,
+      error: "",
     };
   }
 
@@ -58,23 +63,43 @@ class CreateAccount extends React.Component {
     return allValid;
   }
 
+  async createUserDDB(username, email) {
+    let userInput = { username: username, email: email };
+    try {
+      const resp = await API.graphql(
+        graphqlOperation(createUser, { input: userInput })
+      );
+      console.log("Created user in DDB:", userInput);
+      return resp;
+    } catch (error) {
+      console.log("Create User in DDB Error:", error);
+      return;
+    }
+  }
+
   async _signUp(username, password, email) {
     try {
-      const { user, userConfirmed, userSub } = await Auth.signUp({
+      const { user } = await Auth.signUp({
         username,
         password,
         attributes: {
           email,
         },
       });
-      console.log("Created Account for user:", user);
-      this.context.setUserToken(user.username);
+      console.log("Signed up in Cognito for user:", user.username);
+
+      this.createUserDDB(username, email);
+
+      this.props.navigation.push("ConfirmEmail", {
+        username: username,
+        password: password,
+      });
     } catch (error) {
       console.log("ERROR: sign up", error);
       if (error.code == "UsernameExistsException") {
         this.setState({ userNameError: "Username is taken" });
       } else {
-        this.setState({ userNameError: error.message });
+        this.setState({ error: error.message });
       }
     }
   }
@@ -97,6 +122,7 @@ class CreateAccount extends React.Component {
     let usernameErrorMessage;
     let emailErrorMessage;
     let passwordErrorMessage;
+    let otherErrorMessage;
     if (this.state.userNameError != "") {
       usernameErrorMessage = errorMessage(this.state.userNameError);
     }
@@ -104,9 +130,12 @@ class CreateAccount extends React.Component {
       emailErrorMessage = errorMessage("Please enter a valid email");
     }
     if (!this.state.validPassword) {
-      passwordErrorMessage = errorMessage(
+      otherErrorMessage = errorMessage(
         "Password must be greater than six characters"
       );
+    }
+    if (this.state.error != "") {
+      otherErrorMessage = errorMessage(this.state.error);
     }
     return (
       <AuthContext.Consumer>
@@ -148,6 +177,7 @@ class CreateAccount extends React.Component {
                 autoCompleteType={"off"}
               />
               {passwordErrorMessage}
+              {otherErrorMessage}
               <TouchableOpacity
                 style={styles.createAccountBtn}
                 activeOpacity={0.5}

@@ -4,6 +4,7 @@ import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 
+import UserBar from "./UserBar";
 import constants from "../../constants/constants";
 
 class Post extends React.Component {
@@ -38,34 +39,7 @@ class Post extends React.Component {
       "https://media-exp1.licdn.com/dms/image/C4E03AQFoTpoq2QHAVA/profile-displayphoto-shrink_100_100/0/1588884556380?e=1620864000&v=beta&t=oaJ-DWkzGysRlkZDynxup5BK8qFpn-uEVmyQ1Tuu5qM";
     return (
       <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.userBar}
-          onPress={() => this.focusPost()}
-          activeOpacity={1.0}
-        >
-          <View style={styles.userPhotoName}>
-            <Image
-              style={styles.userPhoto}
-              source={{
-                uri: imageUri,
-              }}
-            />
-            <View style={styles.userNameContainer}>
-              <Text style={styles.userName}>Yujin</Text>
-            </View>
-          </View>
-
-          <View>
-            <Text
-              style={{
-                fontSize: 30,
-                textAlignVertical: "top",
-              }}
-            >
-              ...
-            </Text>
-          </View>
-        </TouchableOpacity>
+        <UserBar onPress={() => this.focusPost()} />
         <TouchableOpacity
           key={this.props.post.id + "View"}
           style={styles.postContainer}
@@ -96,12 +70,6 @@ class Post extends React.Component {
             size={25}
             color={constants.styleConstants.black}
           />
-          {/* <Icon
-            name="like"
-            type="evilicon"
-            size={constants.styleConstants.iconSize}
-            color={constants.styleConstants.black}
-          /> */}
           <Icon
             name="comment"
             type="evilicon"
@@ -120,6 +88,7 @@ class Post extends React.Component {
     );
   }
 }
+
 export default function (props) {
   const navigation = useNavigation();
   return <Post {...props} navigation={navigation} />;
@@ -139,27 +108,6 @@ const styles = StyleSheet.create({
   },
   titleText: {
     fontWeight: "bold",
-  },
-  userBar: {
-    height: constants.styleConstants.rowHeight,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    padding: 5,
-  },
-  userPhotoName: {
-    flexDirection: "row",
-  },
-  userPhoto: {
-    height: 40,
-    width: 40,
-    borderRadius: 20,
-  },
-  userNameContainer: {
-    flexDirection: "column",
-    justifyContent: "center",
-  },
-  userName: {
-    marginLeft: 10,
   },
   iconBar: {
     height: (constants.styleConstants.rowHeight * 4) / 5,

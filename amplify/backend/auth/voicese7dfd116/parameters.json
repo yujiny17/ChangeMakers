@@ -1,6 +1,6 @@
 {
     "identityPoolName": "voicese7dfd116_identitypool_e7dfd116",
-    "allowUnauthenticatedIdentities": false,
+    "allowUnauthenticatedIdentities": true,
     "resourceNameTruncated": "voicese7dfd116",
     "userPoolName": "voicese7dfd116_userpool_e7dfd116",
     "autoVerifiedAttributes": [
@@ -45,14 +45,21 @@
             "Arn"
         ]
     },
-    "useDefault": "default",
+    "useDefault": "manual",
     "triggers": "{}",
-    "userPoolGroupList": [],
+    "userPoolGroupList": [
+        "VoicesUsers"
+    ],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
     "parentStack": {
         "Ref": "AWS::StackId"
     },
     "permissions": [],
-    "dependsOn": []
+    "dependsOn": [],
+    "thirdPartyAuth": true,
+    "authProviders": [],
+    "userPoolGroups": true,
+    "adminQueries": false,
+    "hostedUI": false
 }

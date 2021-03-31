@@ -1,5 +1,11 @@
 {
   "AppSyncApiName": "voices",
   "DynamoDBBillingMode": "PAY_PER_REQUEST",
-  "DynamoDBEnableServerSideEncryption": false
+  "DynamoDBEnableServerSideEncryption": false,
+  "AuthCognitoUserPoolId": {
+    "Fn::GetAtt": [
+      "authvoicese7dfd116",
+      "Outputs.UserPoolId"
+    ]
+  }
 }

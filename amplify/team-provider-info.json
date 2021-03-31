@@ -14,6 +14,12 @@
     "categories": {
       "auth": {
         "voicese7dfd116": {}
+      },
+      "function": {
+        "addCreatedPostToFollowersTimeline": {
+          "deploymentBucketName": "amplify-voices-dev-83555-deployment",
+          "s3Key": "amplify-builds/addCreatedPostToFollowersTimeline-584f6b4c547668523861-build.zip"
+        }
       }
     }
   }

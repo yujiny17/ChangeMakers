@@ -1,9 +1,95 @@
-type Post @model {
+# each model has "private" allowed to create for mock testing purposes
+
+# NEED TO ADD: action items, reactions (# of each), comments,
+# tag other accounts, sources, text, images, videos, links!!, links to in-app posts
+type Post
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "username"
+        operations: [read, create, update, delete]
+      }
+      { allow: private, operations: [read, create] }
+      { allow: public, operations: [read] }
+      { allow: private, provider: iam, operations: [create] } # Lambda function
+    ]
+  )
+  @key(
+    name: "BySpecificOwner"
+    fields: ["username", "createdAt"]
+    queryField: "listPostsBySpecificOwner"
+  ) {
   id: ID!
-  user: String!
+  username: String!
   title: String
-  content: String
+  text: String
+  photos: [ID] # 	post: Post @connection(fields: ["id"])
+  createdAt: String
+  upvote: Int
+  downVote: Int
+  misinformationScore: Int
 }
 
-# action items, reactions (# of each), comments,
-# tag other accounts, sources, text, images, videos, links!!, links to in-app posts
+# add post id, createdAt GSI
+type Photo @model {
+  id: ID!
+  postId: ID
+  type: String
+}
+
+type FollowRelationship
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "followerId"
+        operations: [read, create, delete]
+      }
+      { allow: private, operations: [read, create] }
+      { allow: private, provider: iam, operations: [read] } # Lambda function
+    ]
+  )
+  @key(fields: ["followeeId", "followerId"]) {
+  followeeId: ID!
+  followerId: ID!
+}
+
+type PersonalTimeline
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "username"
+        operations: [read, create, update, delete]
+      }
+      { allow: private, operations: [read, create] }
+      { allow: private, provider: iam, operations: [create] }
+    ]
+  )
+  @key(
+    name: "ByOwner"
+    fields: ["username", "createdAt"]
+    queryField: "listPersonalTimelinesByOwner"
+  ) {
+  username: String!
+  postId: ID!
+  createdAt: String
+  post: Post @connection(fields: ["postId"])
+}
+
+type Mutation {
+  addCreatedPostToFollowersTimeline(postId: ID!): Post  # input is postId, return val is Post
+    @function(name: "addCreatedPostToFollowersTimeline-${env}")
+    @auth(rules: [{ allow: private, provider: userPools }])
+}
+
+type User @model @key(fields: ["username"]) {
+  username: String!
+  email: String!
+  photo: String
+  # timelines: [ID]
+}

@@ -1,15 +1,21 @@
 import React from "react";
 import { Button, Icon } from "react-native-elements";
 import { View, StyleSheet, Dimensions } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+
 import constants from "../constants/constants";
 
 class ToolBar extends React.Component {
+  createPost() {
+    const { navigation } = this.props;
+    navigation.navigate("CreatePostForm");
+  }
   render() {
     return (
       <View style={styles.ToolBarContainer}>
         <Button
           nativeID="leftButton"
-          style={styles.HomeButton}
+          style={styles.button}
           buttonStyle={{
             backgroundColor: "#F8F8F8",
           }}
@@ -18,14 +24,33 @@ class ToolBar extends React.Component {
               name="home"
               type="material-community"
               color="black"
-              style={styles.HomeIcon}
-              containerStyle={styles.HomeIconContainer}
+              style={styles.icon}
+              containerStyle={styles.iconContainer}
+              size={30}
             />
           }
         />
         <Button
+          nativeID="plus"
+          style={styles.button}
+          buttonStyle={{
+            backgroundColor: "#F8F8F8",
+          }}
+          icon={
+            <Icon
+              name="plus"
+              type="material-community"
+              color="black"
+              style={styles.icon}
+              containerStyle={styles.iconContainer}
+              size={30}
+            />
+          }
+          onPress={() => this.createPost()}
+        />
+        <Button
           nativeID="homeButton"
-          style={styles.HomeButton}
+          style={styles.button}
           buttonStyle={{
             backgroundColor: "#F8F8F8",
           }}
@@ -34,8 +59,9 @@ class ToolBar extends React.Component {
               name="account"
               type="material-community"
               color="black"
-              style={styles.HomeIcon}
-              containerStyle={styles.HomeIconContainer}
+              style={styles.icon}
+              containerStyle={styles.iconContainer}
+              size={30}
             />
           }
         />
@@ -44,29 +70,27 @@ class ToolBar extends React.Component {
   }
 }
 
-export default ToolBar;
+export default function (props) {
+  const navigation = useNavigation();
+  return <ToolBar {...props} navigation={navigation} />;
+}
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const styles = StyleSheet.create({
   ToolBarContainer: {
-    // height: constants.styleConstants.rowHeight,
     width: "100%",
     borderTopWidth: StyleSheet.hairlineWidth,
     backgroundColor: "#F8F8F8",
     flexDirection: "row",
     justifyContent: "center",
   },
-  HomeButton: {
-    width: SCREEN_WIDTH * 0.5,
+  button: {
+    width: SCREEN_WIDTH / 3,
   },
-  HomeIconContainer: {},
-  HomeIcon: {
+  iconContainer: {},
+  icon: {
     padding: 0,
     flexDirection: "column",
     justifyContent: "center",
   },
 });
-
-// Minor bug: Button creates a View inside the Button that has padding
-//     which leads to rounded corners. Possible fix is to pass in a view
-//     with no padding to the ViewComponent prop

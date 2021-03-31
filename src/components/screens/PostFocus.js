@@ -4,10 +4,10 @@ import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 
-import AppStatusBar from "./AppStatusBar";
-import ToolBar from "./ToolBar";
-import Post from "./Post/Post";
-import constants from "../constants/constants.js";
+import AppStatusBar from "../AppStatusBar";
+import ToolBar from "../ToolBar";
+import Post from "../Post/Post";
+import constants from "../../constants/constants";
 
 class PostFocus extends React.Component {
   constructor(props) {
