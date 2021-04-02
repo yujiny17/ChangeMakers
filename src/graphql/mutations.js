@@ -10,9 +10,6 @@ export const createPhoto = /* GraphQL */ `
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -27,9 +24,6 @@ export const updatePhoto = /* GraphQL */ `
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -44,9 +38,6 @@ export const deletePhoto = /* GraphQL */ `
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -60,9 +51,6 @@ export const updateFollowRelationship = /* GraphQL */ `
     updateFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -77,9 +65,6 @@ export const createUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -94,9 +79,6 @@ export const updateUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -111,9 +93,54 @@ export const deleteUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createUserPostActivity = /* GraphQL */ `
+  mutation CreateUserPostActivity(
+    $input: CreateUserPostActivityInput!
+    $condition: ModelUserPostActivityConditionInput
+  ) {
+    createUserPostActivity(input: $input, condition: $condition) {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateUserPostActivity = /* GraphQL */ `
+  mutation UpdateUserPostActivity(
+    $input: UpdateUserPostActivityInput!
+    $condition: ModelUserPostActivityConditionInput
+  ) {
+    updateUserPostActivity(input: $input, condition: $condition) {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteUserPostActivity = /* GraphQL */ `
+  mutation DeleteUserPostActivity(
+    $input: DeleteUserPostActivityInput!
+    $condition: ModelUserPostActivityConditionInput
+  ) {
+    deleteUserPostActivity(input: $input, condition: $condition) {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
       createdAt
       updatedAt
     }
@@ -125,19 +152,16 @@ export const createPost = /* GraphQL */ `
     $condition: ModelPostConditionInput
   ) {
     createPost(input: $input, condition: $condition) {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -148,19 +172,16 @@ export const updatePost = /* GraphQL */ `
     $condition: ModelPostConditionInput
   ) {
     updatePost(input: $input, condition: $condition) {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -171,19 +192,16 @@ export const deletePost = /* GraphQL */ `
     $condition: ModelPostConditionInput
   ) {
     deletePost(input: $input, condition: $condition) {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -196,9 +214,6 @@ export const createFollowRelationship = /* GraphQL */ `
     createFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -212,9 +227,6 @@ export const deleteFollowRelationship = /* GraphQL */ `
     deleteFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -230,24 +242,18 @@ export const createPersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
@@ -263,24 +269,18 @@ export const updatePersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
@@ -296,24 +296,18 @@ export const deletePersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
@@ -322,19 +316,16 @@ export const deletePersonalTimeline = /* GraphQL */ `
 export const addCreatedPostToFollowersTimeline = /* GraphQL */ `
   mutation AddCreatedPostToFollowersTimeline($postId: ID!) {
     addCreatedPostToFollowersTimeline(postId: $postId) {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }

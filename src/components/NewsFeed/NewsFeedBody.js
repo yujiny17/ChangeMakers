@@ -1,7 +1,13 @@
 import React from "react";
 import { FlatList, Text } from "react-native";
-import { connect } from "react-redux";
-import { fetchPosts } from "../../actions/NewsFeed";
+import { API, graphqlOperation } from "aws-amplify";
+
+// import { connect } from "react-redux";
+// import { fetchPosts } from "../../actions/NewsFeed";
+import { listPersonalTimelinesByOwner } from "../../graphql/queries";
+
+import { getToken } from "../../UserCredentials";
+
 import Post from "../Post/Post";
 import constants from "../../constants/constants";
 
@@ -15,22 +21,44 @@ class NewsFeedBody extends React.Component {
     };
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     console.log("news feed body is about to mount");
-    this.props.fetchPosts();
+    // get user's timeline
+    let user = await getToken();
+    let username = user.username;
+    let posts;
+    try {
+      // get user's timeline
+      console.log("getting user timeline for", username);
+      const resp = await API.graphql(
+        graphqlOperation(listPersonalTimelinesByOwner, {
+          username: username,
+          sortDirection: "DESC",
+        })
+      );
+      posts = resp.data.listPersonalTimelinesByOwner.items;
+      // console.log("timeline posts are", posts);
+      // console.log("and posts are", posts.post);
+    } catch (error) {
+      console.log("Get user post activity error", error);
+    }
+    this.setState({ data: posts, loading: false });
+    // this.props.fetchPosts();
   }
 
   _renderPost({ item }) {
-    return <Post post={item} key={item.id} focusPost={false}></Post>;
+    // console.log("rendering item", item);
+    let post = item.post;
+    return <Post post={post} key={post.id} focusPost={false}></Post>;
   }
 
   render() {
     if (this.state.loading) {
       return <Text style={{ color: "red", fontSize: 30 }}>Loading!!</Text>;
-    } else if (!this.state.loading && this.props.data.length > 0) {
+    } else if (!this.state.loading && this.state.data != null) {
       return (
         <FlatList
-          data={this.props.data}
+          data={this.state.data}
           renderItem={this._renderPost}
           keyExtractor={(item) => item.id}
           style={{ width: 100 + "%" }}
@@ -42,18 +70,19 @@ class NewsFeedBody extends React.Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    data: state.newsFeed.data,
-    loading: state.loading,
-    error: state.error,
-  };
-}
+// function mapStateToProps(state) {
+//   return {
+//     data: state.newsFeed.data,
+//     loading: state.loading,
+//     error: state.error,
+//   };
+// }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    fetchPosts: () => dispatch(fetchPosts()), // field key : (parameters) => dispatch function
-  };
-};
+// const mapDispatchToProps = (dispatch) => {
+//   return {
+//     fetchPosts: () => dispatch(fetchPosts()), // field key : (parameters) => dispatch function
+//   };
+// };
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewsFeedBody);
+// export default connect(mapStateToProps, mapDispatchToProps)(NewsFeedBody);
+export default NewsFeedBody;

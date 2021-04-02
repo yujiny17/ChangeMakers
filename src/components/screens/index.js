@@ -5,7 +5,7 @@ import PostFocus from "../screens/PostFocus";
 import CreatePostForm from "./CreatePostForm";
 import ImageBrowserScreen from "./ImageBrowserScreen";
 import ConfirmEmail from "../screens/ConfirmEmail";
-
+import SearchScreen from "../screens/SearchScreen";
 export {
   LogIn,
   CreateAccount,
@@ -14,4 +14,5 @@ export {
   PostFocus,
   CreatePostForm,
   ImageBrowserScreen,
+  SearchScreen,
 };

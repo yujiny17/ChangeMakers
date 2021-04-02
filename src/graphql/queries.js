@@ -1,43 +1,12 @@
 /* eslint-disable */
 // this is an auto generated file. This will be overwritten
 
-export const syncPhotos = /* GraphQL */ `
-  query SyncPhotos(
-    $filter: ModelPhotoFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncPhotos(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        postId
-        type
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
-    }
-  }
-`;
 export const getPhoto = /* GraphQL */ `
   query GetPhoto($id: ID!) {
     getPhoto(id: $id) {
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -54,42 +23,10 @@ export const listPhotos = /* GraphQL */ `
         id
         postId
         type
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncUsers = /* GraphQL */ `
-  query SyncUsers(
-    $filter: ModelUserFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncUsers(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        username
-        email
-        photo
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -99,9 +36,6 @@ export const getUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -126,14 +60,53 @@ export const listUsers = /* GraphQL */ `
         username
         email
         photo
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
+    }
+  }
+`;
+export const getUserPostActivity = /* GraphQL */ `
+  query GetUserPostActivity($username: String!, $postId: ID!) {
+    getUserPostActivity(username: $username, postId: $postId) {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listUserPostActivitys = /* GraphQL */ `
+  query ListUserPostActivitys(
+    $username: String
+    $postId: ModelIDKeyConditionInput
+    $filter: ModelUserPostActivityFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listUserPostActivitys(
+      username: $username
+      postId: $postId
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        username
+        postId
+        upvote
+        downvote
+        misinformation
+        createdAt
+        updatedAt
+      }
+      nextToken
     }
   }
 `;
@@ -145,42 +118,35 @@ export const listPosts = /* GraphQL */ `
   ) {
     listPosts(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
       nextToken
-      startedAt
     }
   }
 `;
 export const getPost = /* GraphQL */ `
   query GetPost($id: ID!) {
     getPost(id: $id) {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -203,57 +169,19 @@ export const listPostsBySpecificOwner = /* GraphQL */ `
       nextToken: $nextToken
     ) {
       items {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncPosts = /* GraphQL */ `
-  query SyncPosts(
-    $filter: ModelPostFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncPosts(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        type
-        id
-        username
-        title
-        text
-        photos
-        createdAt
-        upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -262,9 +190,6 @@ export const getFollowRelationship = /* GraphQL */ `
     getFollowRelationship(followeeId: $followeeId, followerId: $followerId) {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -290,41 +215,10 @@ export const listFollowRelationships = /* GraphQL */ `
       items {
         followeeId
         followerId
-        _version
-        _deleted
-        _lastChangedAt
         createdAt
         updatedAt
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncFollowRelationships = /* GraphQL */ `
-  query SyncFollowRelationships(
-    $filter: ModelFollowRelationshipFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncFollowRelationships(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        followeeId
-        followerId
-        _version
-        _deleted
-        _lastChangedAt
-        createdAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;
@@ -335,24 +229,18 @@ export const getPersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
@@ -374,13 +262,22 @@ export const listPersonalTimelines = /* GraphQL */ `
         username
         postId
         createdAt
-        _version
-        _deleted
-        _lastChangedAt
         updatedAt
+        post {
+          id
+          username
+          title
+          text
+          photos
+          upvote
+          downvote
+          totalvote
+          misinformation
+          createdAt
+          updatedAt
+        }
       }
       nextToken
-      startedAt
     }
   }
 `;
@@ -406,41 +303,22 @@ export const listPersonalTimelinesByOwner = /* GraphQL */ `
         username
         postId
         createdAt
-        _version
-        _deleted
-        _lastChangedAt
         updatedAt
+        post {
+          id
+          username
+          title
+          text
+          photos
+          upvote
+          downvote
+          totalvote
+          misinformation
+          createdAt
+          updatedAt
+        }
       }
       nextToken
-      startedAt
-    }
-  }
-`;
-export const syncPersonalTimelines = /* GraphQL */ `
-  query SyncPersonalTimelines(
-    $filter: ModelPersonalTimelineFilterInput
-    $limit: Int
-    $nextToken: String
-    $lastSync: AWSTimestamp
-  ) {
-    syncPersonalTimelines(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-      lastSync: $lastSync
-    ) {
-      items {
-        id
-        username
-        postId
-        createdAt
-        _version
-        _deleted
-        _lastChangedAt
-        updatedAt
-      }
-      nextToken
-      startedAt
     }
   }
 `;

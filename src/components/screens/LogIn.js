@@ -56,20 +56,25 @@ class LogIn extends React.Component {
   }
 
   async _checkUser() {
-    let user = await getToken();
-    // let user = null;
+    let user;
+    try {
+      user = await getToken();
+    } catch (error) {
+      console.log("error retrieving user token");
+      return;
+    }
     if (user != null) {
       try {
         const authUser = await Auth.signIn(user.username, user.password);
         this.context.setUserToken(authUser.username);
+        console.log(user.username, "is logged in");
       } catch (error) {
         console.log(
           "User token exists but could not authenticate with Cognito",
           error
         );
+        return;
       }
-      // console.log(user, "is logged in");
-      console.log(user.username, "is logged in");
     }
   }
 

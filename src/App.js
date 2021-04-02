@@ -49,8 +49,8 @@ class App extends React.Component {
     return (
       <AuthContext.Provider value={this.state}>
         <NavigationContainer>
-          {this.state.userToken ? <MainApp /> : <AuthStackScreen />}
-          {/* <MainApp /> */}
+          {/* {this.state.userToken ? <MainApp /> : <AuthStackScreen />} */}
+          <MainApp />
         </NavigationContainer>
       </AuthContext.Provider>
     );

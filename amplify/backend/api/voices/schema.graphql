@@ -11,7 +11,7 @@ type Post
         ownerField: "username"
         operations: [read, create, update, delete]
       }
-      { allow: private, operations: [read, create] }
+      { allow: private, operations: [read, create, update] }
       { allow: public, operations: [read] }
       { allow: private, provider: iam, operations: [create] } # Lambda function
     ]
@@ -26,10 +26,11 @@ type Post
   title: String
   text: String
   photos: [ID] # 	post: Post @connection(fields: ["id"])
-  createdAt: String
   upvote: Int
-  downVote: Int
-  misinformationScore: Int
+  downvote: Int
+  totalvote: Int
+  misinformation: Int
+  createdAt: String
 }
 
 # add post id, createdAt GSI
@@ -92,4 +93,13 @@ type User @model @key(fields: ["username"]) {
   email: String!
   photo: String
   # timelines: [ID]
+}
+
+type UserPostActivity @model @key(fields: ["username", "postId"]) {
+  username: String!
+  postId: ID!
+  upvote: Boolean
+  downvote: Boolean
+  misinformation: Boolean
+  # comments: []
 }

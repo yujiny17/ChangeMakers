@@ -6,7 +6,6 @@ import { ModelInit, MutableModel, PersistentModelConstructor } from "@aws-amplif
 
 export declare class Post {
   readonly id: string;
-  readonly type: string;
   readonly username: string;
   readonly title?: string;
   readonly text?: string;
@@ -52,4 +51,15 @@ export declare class User {
   readonly photo?: string;
   constructor(init: ModelInit<User>);
   static copyOf(source: User, mutator: (draft: MutableModel<User>) => MutableModel<User> | void): User;
+}
+
+export declare class UserPostActivity {
+  readonly id: string;
+  readonly username: string;
+  readonly postId: string;
+  readonly upvote?: boolean;
+  readonly downvote?: boolean;
+  readonly misinformation?: boolean;
+  constructor(init: ModelInit<UserPostActivity>);
+  static copyOf(source: UserPostActivity, mutator: (draft: MutableModel<UserPostActivity>) => MutableModel<UserPostActivity> | void): UserPostActivity;
 }

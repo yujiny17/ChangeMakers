@@ -1,13 +1,11 @@
 import React from "react";
 import Storage from "@aws-amplify/storage";
-import { Auth } from "aws-amplify";
-
 import { API, graphqlOperation } from "aws-amplify";
 import {
   createPost,
   createPhoto,
   createPersonalTimeline,
-  createFollowRelationship,
+  //   createFollowRelationship,
 } from "../graphql/mutations";
 import { listFollowRelationships } from "../graphql/queries";
 import { v4 as uuidv4 } from "uuid";
@@ -43,7 +41,6 @@ async function getFollowers(username) {
     console.log("Error retrieving followers of", username, error);
     return [];
   }
-  return;
 }
 
 async function addPostToFollowersTimeline(post) {
@@ -99,7 +96,6 @@ async function post(formState, photos) {
   //     ...formState,
   //     id: "testId",
   //     username: "testUser",
-  //     type: "post",
   //   });
   //   return;
 
@@ -125,10 +121,18 @@ async function post(formState, photos) {
       resp.map((promise) => photoArray.push(promise.data.createPhoto.id));
     }
     // create post in DDB
-    post = { ...formState, photos: photoArray, id: id, username: username };
+    post = {
+      id: id,
+      username: username,
+      photos: photoArray,
+      upvote: 0,
+      downvote: 0,
+      misinformation: 0,
+      ...formState,
+    };
     console.log("Creating post with id:", post.id);
     console.log("Creating post", post);
-    // await API.graphql(graphqlOperation(createPost, { input: post }));
+    await API.graphql(graphqlOperation(createPost, { input: post }));
     addPostToFollowersTimeline(post);
   } catch (err) {
     console.log("ERROR in Create Post:", err);

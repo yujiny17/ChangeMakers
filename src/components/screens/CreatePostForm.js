@@ -20,13 +20,14 @@ import UserBar from "../Post/UserBar";
 import constants from "../../constants/constants.js";
 import baseStyles from "../../constants/styles";
 
-const initialState = { type: "post", title: "", text: "" };
+const initialState = { title: "", text: "" };
 export default CreatePostForm = (props) => {
   const navigation = useNavigation();
   const [formState, setFormState] = useState(initialState);
 
   // variables to pass to post()
   const photos = props.route.params.photos;
+
   //   const videos
   // const links
 
@@ -67,7 +68,9 @@ export default CreatePostForm = (props) => {
           autoCapitalize={"none"}
           autoCompleteType={"off"}
           multiline={true}
+          textAlignVertical={"top"}
           maxLength={50000}
+          numberOfLines={3}
         />
       </View>
       {DisplayPhotos(photos)}

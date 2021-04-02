@@ -7,6 +7,7 @@ import {
   PostFocus,
   CreatePostForm,
   ImageBrowserScreen,
+  SearchScreen,
 } from "./index";
 
 import constants from "../../constants/constants";
@@ -57,6 +58,16 @@ class MainApp extends React.Component {
           options={{
             headerShown: true,
             title: "Pick Photos",
+            headerBackTitle: " ",
+            headerStyle: styles.headerStyle,
+          }}
+        />
+        <MainStack.Screen
+          name="Search"
+          component={SearchScreen}
+          options={{
+            headerShown: true,
+            title: "Search Screen",
             headerBackTitle: " ",
             headerStyle: styles.headerStyle,
           }}

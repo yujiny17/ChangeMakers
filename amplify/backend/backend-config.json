@@ -18,6 +18,9 @@
                 "apiKeyExpirationDays": 7,
                 "description": ""
               }
+            },
+            {
+              "authenticationType": "AWS_IAM"
             }
           ]
         }

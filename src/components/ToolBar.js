@@ -6,19 +6,18 @@ import { useNavigation } from "@react-navigation/native";
 import constants from "../constants/constants";
 
 class ToolBar extends React.Component {
-  createPost() {
-    const { navigation } = this.props;
-    navigation.navigate("CreatePostForm");
-  }
   render() {
+    const { navigation } = this.props;
+
     return (
       <View style={styles.ToolBarContainer}>
         <Button
-          nativeID="leftButton"
+          nativeID="homeButton"
           style={styles.button}
           buttonStyle={{
             backgroundColor: "#F8F8F8",
           }}
+          onPress={() => this.props.navigation.navigate("NewsFeed")}
           icon={
             <Icon
               name="home"
@@ -31,7 +30,25 @@ class ToolBar extends React.Component {
           }
         />
         <Button
-          nativeID="plus"
+          nativeID="searchButton"
+          style={styles.button}
+          buttonStyle={{
+            backgroundColor: "#F8F8F8",
+          }}
+          onPress={() => this.props.navigation.navigate("SearchScreen")}
+          icon={
+            <Icon
+              name="search-outline"
+              type="ionicon"
+              color="black"
+              style={styles.icon}
+              containerStyle={styles.iconContainer}
+              size={27}
+            />
+          }
+        />
+        <Button
+          nativeID="plusButton"
           style={styles.button}
           buttonStyle={{
             backgroundColor: "#F8F8F8",
@@ -46,10 +63,10 @@ class ToolBar extends React.Component {
               size={30}
             />
           }
-          onPress={() => this.createPost()}
+          onPress={() => navigation.navigate("CreatePostForm")}
         />
         <Button
-          nativeID="homeButton"
+          nativeID="accountButton"
           style={styles.button}
           buttonStyle={{
             backgroundColor: "#F8F8F8",
@@ -83,9 +100,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8F8F8",
     flexDirection: "row",
     justifyContent: "center",
+    alignContent: "center",
   },
   button: {
-    width: SCREEN_WIDTH / 3,
+    width: SCREEN_WIDTH / 4,
   },
   iconContainer: {},
   icon: {

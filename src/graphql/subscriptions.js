@@ -7,9 +7,6 @@ export const onCreatePhoto = /* GraphQL */ `
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -21,9 +18,6 @@ export const onUpdatePhoto = /* GraphQL */ `
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -35,9 +29,6 @@ export const onDeletePhoto = /* GraphQL */ `
       id
       postId
       type
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -49,9 +40,6 @@ export const onCreateUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -63,9 +51,6 @@ export const onUpdateUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -77,9 +62,45 @@ export const onDeleteUser = /* GraphQL */ `
       username
       email
       photo
-      _version
-      _deleted
-      _lastChangedAt
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onCreateUserPostActivity = /* GraphQL */ `
+  subscription OnCreateUserPostActivity {
+    onCreateUserPostActivity {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateUserPostActivity = /* GraphQL */ `
+  subscription OnUpdateUserPostActivity {
+    onUpdateUserPostActivity {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteUserPostActivity = /* GraphQL */ `
+  subscription OnDeleteUserPostActivity {
+    onDeleteUserPostActivity {
+      username
+      postId
+      upvote
+      downvote
+      misinformation
       createdAt
       updatedAt
     }
@@ -88,19 +109,16 @@ export const onDeleteUser = /* GraphQL */ `
 export const onCreatePost = /* GraphQL */ `
   subscription OnCreatePost {
     onCreatePost {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -108,19 +126,16 @@ export const onCreatePost = /* GraphQL */ `
 export const onUpdatePost = /* GraphQL */ `
   subscription OnUpdatePost {
     onUpdatePost {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -128,19 +143,16 @@ export const onUpdatePost = /* GraphQL */ `
 export const onDeletePost = /* GraphQL */ `
   subscription OnDeletePost {
     onDeletePost {
-      type
       id
       username
       title
       text
       photos
-      createdAt
       upvote
-      downVote
-      misinformationScore
-      _version
-      _deleted
-      _lastChangedAt
+      downvote
+      totalvote
+      misinformation
+      createdAt
       updatedAt
     }
   }
@@ -150,9 +162,6 @@ export const onCreateFollowRelationship = /* GraphQL */ `
     onCreateFollowRelationship {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -163,9 +172,6 @@ export const onUpdateFollowRelationship = /* GraphQL */ `
     onUpdateFollowRelationship {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -176,9 +182,6 @@ export const onDeleteFollowRelationship = /* GraphQL */ `
     onDeleteFollowRelationship {
       followeeId
       followerId
-      _version
-      _deleted
-      _lastChangedAt
       createdAt
       updatedAt
     }
@@ -191,24 +194,18 @@ export const onCreatePersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
@@ -221,24 +218,18 @@ export const onUpdatePersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
@@ -251,24 +242,18 @@ export const onDeletePersonalTimeline = /* GraphQL */ `
       username
       postId
       createdAt
-      _version
-      _deleted
-      _lastChangedAt
       updatedAt
       post {
-        type
         id
         username
         title
         text
         photos
-        createdAt
         upvote
-        downVote
-        misinformationScore
-        _version
-        _deleted
-        _lastChangedAt
+        downvote
+        totalvote
+        misinformation
+        createdAt
         updatedAt
       }
     }
