@@ -1,6 +1,11 @@
 import React from "react";
 import MainApp from "./components/screens/MainApp";
-import { LogIn, CreateAccount, ConfirmEmail } from "./components/screens/index";
+import {
+  LogIn,
+  CreateAccount,
+  ConfirmEmail,
+  PickProfilePicture,
+} from "./components/screens/index";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 
@@ -44,13 +49,18 @@ class App extends React.Component {
           component={ConfirmEmail}
           options={{ title: "" }}
         />
+        <AuthStack.Screen
+          name="PickProfilePicture"
+          component={PickProfilePicture}
+          options={{ headerShown: false }}
+        />
       </AuthStack.Navigator>
     );
     return (
       <AuthContext.Provider value={this.state}>
         <NavigationContainer>
-          {/* {this.state.userToken ? <MainApp /> : <AuthStackScreen />} */}
-          <MainApp />
+          {this.state.userToken ? <MainApp /> : <AuthStackScreen />}
+          {/* <MainApp /> */}
         </NavigationContainer>
       </AuthContext.Provider>
     );

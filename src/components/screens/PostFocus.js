@@ -17,8 +17,6 @@ class PostFocus extends React.Component {
     }
   }
 
-  componentDidMount() {}
-
   render() {
     const post = this.props.route.params.post;
     return (

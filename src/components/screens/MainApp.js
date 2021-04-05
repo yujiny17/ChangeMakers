@@ -25,6 +25,14 @@ class MainApp extends React.Component {
           options={{ headerShown: false }}
         />
         <MainStack.Screen
+          name="SearchScreen"
+          component={SearchScreen}
+          options={{
+            headerShown: false,
+            headerBackTitle: " ",
+          }}
+        />
+        <MainStack.Screen
           name="PostFocus"
           component={PostFocus}
           options={{
@@ -58,16 +66,6 @@ class MainApp extends React.Component {
           options={{
             headerShown: true,
             title: "Pick Photos",
-            headerBackTitle: " ",
-            headerStyle: styles.headerStyle,
-          }}
-        />
-        <MainStack.Screen
-          name="Search"
-          component={SearchScreen}
-          options={{
-            headerShown: true,
-            title: "Search Screen",
             headerBackTitle: " ",
             headerStyle: styles.headerStyle,
           }}

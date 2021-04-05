@@ -22,6 +22,7 @@
     "aws-sdk": "^2.874.0",
     "axios": "^0.21.1",
     "expo": "^40.0.0",
+    "expo-image-manipulator": "~8.4.0",
     "expo-image-picker": "~9.2.0",
     "expo-image-picker-multiple": "^1.4.1",
     "expo-status-bar": "~1.0.3",
@@ -42,8 +43,7 @@
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-saga": "^1.1.3",
-    "uuid": "^8.3.2",
-    "expo-image-manipulator": "~8.4.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@babel/core": "~7.9.0"

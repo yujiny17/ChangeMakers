@@ -41,22 +41,5 @@
       "providerPlugin": "awscloudformation"
     }
   },
-  "function": {
-    "addCreatedPostToFollowersTimeline": {
-      "build": true,
-      "providerPlugin": "awscloudformation",
-      "service": "Lambda",
-      "dependsOn": [
-        {
-          "category": "api",
-          "resourceName": "voices",
-          "attributes": [
-            "GraphQLAPIIdOutput",
-            "GraphQLAPIEndpointOutput",
-            "GraphQLAPIKeyOutput"
-          ]
-        }
-      ]
-    }
-  }
+  "function": {}
 }

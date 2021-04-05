@@ -28,7 +28,11 @@ class ConfirmEmail extends React.Component {
       const user = await Auth.signIn(username, password);
       console.log("Signing in user:", user);
       storeToken(user.name, user.email);
-      this.context.setUserToken(user.username);
+      // this.context.setUserToken(user.username);
+      // commented out to set context only after picking profile
+      this.props.navigation.navigate("PickProfilePicture", {
+        username: username,
+      });
     } catch (error) {
       console.log("Error signing in", error);
       this.setState({ error: error.message });
@@ -83,6 +87,7 @@ class ConfirmEmail extends React.Component {
                 }
                 spellCheck={false}
                 autoCapitalize={"none"}
+                autoFocus={true}
               />
               {error}
               <TouchableOpacity

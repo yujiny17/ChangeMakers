@@ -3,12 +3,14 @@ import { Button, Icon } from "react-native-elements";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
+import { getToken } from "../UserCredentials";
 import constants from "../constants/constants";
 
 class ToolBar extends React.Component {
   render() {
     const { navigation } = this.props;
-
+    const user = getToken();
+    const username = user.username;
     return (
       <View style={styles.ToolBarContainer}>
         <Button
@@ -53,6 +55,7 @@ class ToolBar extends React.Component {
           buttonStyle={{
             backgroundColor: "#F8F8F8",
           }}
+          onPress={() => navigation.navigate("CreatePostForm")}
           icon={
             <Icon
               name="plus"
@@ -63,7 +66,6 @@ class ToolBar extends React.Component {
               size={30}
             />
           }
-          onPress={() => navigation.navigate("CreatePostForm")}
         />
         <Button
           nativeID="accountButton"

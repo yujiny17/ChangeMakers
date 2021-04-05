@@ -101,6 +101,7 @@ export default CreatePostForm = (props) => {
 };
 
 const DisplayPhotos = (photos) => {
+  console.log(photos);
   if (photos.length <= 0) return;
   return (
     <ScrollView

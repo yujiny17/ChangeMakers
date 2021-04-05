@@ -2,7 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 async function storeToken(username, password) {
   try {
-    console.log("storing user token", {
+    console.log("locally storing user", {
       username: username,
       password: password,
     });
@@ -26,4 +26,27 @@ async function getToken() {
   }
 }
 
-export { storeToken, getToken };
+async function storeProfilePicture(photo) {
+  try {
+    console.log("locally storing profilePicture", photo);
+    await AsyncStorage.setItem(
+      "profilePicture",
+      JSON.stringify({ profilePicture: photo })
+    );
+  } catch (error) {
+    console.log("Something went wrong", error);
+  }
+}
+
+async function getProfilePicture() {
+  try {
+    let profilePicture = await AsyncStorage.getItem("profilePicture");
+    let data = JSON.parse(profilePicture);
+    return data;
+  } catch (error) {
+    console.log("Something went wrong", error);
+    return null;
+  }
+}
+
+export { storeToken, getToken, storeProfilePicture, getProfilePicture };

@@ -13,7 +13,15 @@ import { getToken } from "../UserCredentials";
 
 async function uploadPhotoS3(photo) {
   const photoId = uuidv4();
-  return await Storage.put(photoId, { ...photo });
+  try {
+    const response = await fetch(photo.uri);
+    const blob = await response.blob();
+    return await Storage.put(photoId, blob, {
+      contentType: "image/jpeg",
+    });
+  } catch (error) {
+    console.log("Error uploading file", error);
+  }
 }
 
 async function uploadPhotoDDB(key, postId) {
@@ -115,11 +123,13 @@ async function post(formState, photos) {
     // upload photos to S3 and DDB
     if (photos.length > 0) {
       let p = await Promise.all(photos.map((photo) => uploadPhotoS3(photo)));
+      console.log("returned photo", p);
       let resp = await Promise.all(
         p.map((photo) => uploadPhotoDDB(photo.key, id))
       );
       resp.map((promise) => photoArray.push(promise.data.createPhoto.id));
     }
+
     // create post in DDB
     post = {
       id: id,

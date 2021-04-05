@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, Text } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { API, graphqlOperation } from "aws-amplify";
 
 // import { connect } from "react-redux";
@@ -65,7 +65,11 @@ class NewsFeedBody extends React.Component {
         ></FlatList>
       );
     } else {
-      return <Text style={{ color: "red", fontSize: 30 }}>ERROR</Text>;
+      return (
+        <View style={styles.container}>
+          {/* <Text style={{ color: "red", fontSize: 30 }}>ERROR</Text> */}
+        </View>
+      );
     }
   }
 }
@@ -86,3 +90,14 @@ class NewsFeedBody extends React.Component {
 
 // export default connect(mapStateToProps, mapDispatchToProps)(NewsFeedBody);
 export default NewsFeedBody;
+
+const styles = StyleSheet.create({
+  container: {
+    height: 100 + "%",
+    width: 100 + "%",
+    flex: 1,
+    backgroundColor: constants.styleConstants.white,
+    alignItems: "center",
+    // justifyContent: "center",
+  },
+});
