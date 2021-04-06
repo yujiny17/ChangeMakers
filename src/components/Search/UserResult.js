@@ -28,7 +28,7 @@ import constants from "../../constants/constants";
 // };
 
 const UserResult = (props) => {
-  console.log("user result");
+  const navigation = useNavigation();
   const user = props.user;
   let userPhotoExists = false;
   if (user.photo != null) userPhotoExists = true;
@@ -36,7 +36,7 @@ const UserResult = (props) => {
   return (
     <TouchableOpacity
       style={styles.userBar}
-      //   onPress={() => props.onPress()}
+      onPress={() => navigation.push("ProfileScreen", { user: user })}
       activeOpacity={0.8}
     >
       <View style={styles.userPhotoName}>
@@ -97,7 +97,6 @@ const styles = StyleSheet.create({
     width: 50,
     borderRadius: 25,
   },
-  defaultUserPhoto: {},
   userNameContainer: {
     height: 100 + "%",
     flexDirection: "column",

@@ -7,6 +7,8 @@ import PostFocus from "../screens/PostFocus";
 import CreatePostForm from "./CreatePostForm";
 import ImageBrowserScreen from "./ImageBrowserScreen";
 import SearchScreen from "../screens/SearchScreen";
+import ProfileScreen from "../screens/ProfileScreen";
+import FollowSearchScreen from "../screens/FollowSearchScreen";
 export {
   LogIn,
   CreateAccount,
@@ -17,4 +19,6 @@ export {
   CreatePostForm,
   ImageBrowserScreen,
   SearchScreen,
+  ProfileScreen,
+  FollowSearchScreen,
 };

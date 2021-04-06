@@ -5,7 +5,6 @@ import {
   createPost,
   createPhoto,
   createPersonalTimeline,
-  //   createFollowRelationship,
 } from "../graphql/mutations";
 import { listFollowRelationships } from "../graphql/queries";
 import { v4 as uuidv4 } from "uuid";
@@ -32,17 +31,20 @@ async function uploadPhotoDDB(key, postId) {
 async function getFollowers(username) {
   let followersList = [];
   try {
-    // let allFollowRelationships = await API.graphql(
-    //   graphqlOperation(listFollowRelationships)
-    // );
-    // console.log(allFollowRelationships);
-
-    // I think it's working but need to create followerelationships properly not through DDB UI
     let resp = await API.graphql(
       graphqlOperation(listFollowRelationships, { followeeId: username })
     );
     console.log("resp", resp);
-    followersList = resp.data.listFollowRelationships.items;
+    let possFollowers = resp.data.listFollowRelationships.items;
+
+    // only use relationships where follow field = true
+    possFollowers.forEach((rel) => {
+      console.log("checking rel", rel);
+      if (rel.following) {
+        followersList.push(rel);
+      }
+    });
+
     console.log("Followers of", username, "are:", followersList);
     return followersList;
   } catch (error) {
@@ -68,7 +70,7 @@ async function addPostToFollowersTimeline(post) {
     let followRelationshipsList = await getFollowers(user.username);
 
     // add post author to list of followers so post is displayed on author's timeline
-    followRelationshipsList.push({ followerId: "testUser" });
+    followRelationshipsList.push({ followerId: user.username });
 
     // add post to each follower's timeline
     await Promise.all(
@@ -138,6 +140,7 @@ async function post(formState, photos) {
       upvote: 0,
       downvote: 0,
       misinformation: 0,
+      totalvote: 0,
       ...formState,
     };
     console.log("Creating post with id:", post.id);

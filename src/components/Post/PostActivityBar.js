@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
   },
   voteContainer: {
-    flex: 1.25,
+    flex: 1,
     height: 100 + "%",
     // width: 100 + "%",
     flexDirection: "row",

@@ -93,9 +93,6 @@ class Post extends React.Component {
 
   render() {
     const post = this.props.post;
-    const imageHeight = Math.floor(this.state.screenWidth * 1.1);
-    const imageUri =
-      "https://media-exp1.licdn.com/dms/image/C4E03AQFoTpoq2QHAVA/profile-displayphoto-shrink_100_100/0/1588884556380?e=1620864000&v=beta&t=oaJ-DWkzGysRlkZDynxup5BK8qFpn-uEVmyQ1Tuu5qM";
     return (
       <View style={styles.container}>
         <UserBar onPress={() => this.focusPost()} />

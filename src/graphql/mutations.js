@@ -51,6 +51,7 @@ export const updateFollowRelationship = /* GraphQL */ `
     updateFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }
@@ -214,6 +215,7 @@ export const createFollowRelationship = /* GraphQL */ `
     createFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }
@@ -227,6 +229,7 @@ export const deleteFollowRelationship = /* GraphQL */ `
     deleteFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }
@@ -310,23 +313,6 @@ export const deletePersonalTimeline = /* GraphQL */ `
         createdAt
         updatedAt
       }
-    }
-  }
-`;
-export const addCreatedPostToFollowersTimeline = /* GraphQL */ `
-  mutation AddCreatedPostToFollowersTimeline($postId: ID!) {
-    addCreatedPostToFollowersTimeline(postId: $postId) {
-      id
-      username
-      title
-      text
-      photos
-      upvote
-      downvote
-      totalvote
-      misinformation
-      createdAt
-      updatedAt
     }
   }
 `;

@@ -8,6 +8,8 @@ import {
   CreatePostForm,
   ImageBrowserScreen,
   SearchScreen,
+  ProfileScreen,
+  FollowSearchScreen,
 } from "./index";
 
 import constants from "../../constants/constants";
@@ -19,6 +21,20 @@ class MainApp extends React.Component {
     const img = <Image source={require("../../../assets/close.png")} />;
     return (
       <MainStack.Navigator>
+        <MainStack.Screen
+          name="ProfileScreen"
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+          }}
+          initialParams={{
+            user: {
+              username: "testUser3",
+              // photo: "7c731802-e6ce-4fc6-a096-e790feea2eca",
+            },
+            ownProfile: true,
+          }}
+        />
         <MainStack.Screen
           name="NewsFeed"
           component={NewsFeed}
@@ -68,6 +84,20 @@ class MainApp extends React.Component {
             title: "Pick Photos",
             headerBackTitle: " ",
             headerStyle: styles.headerStyle,
+          }}
+        />
+        {/* <MainStack.Screen
+          name="ProfileScreen"
+          component={ProfileScreen}
+          options={{
+            headerShown: false,
+          }}
+        /> */}
+        <MainStack.Screen
+          name="FollowSearchScreen"
+          component={FollowSearchScreen}
+          options={{
+            headerShown: true,
           }}
         />
       </MainStack.Navigator>

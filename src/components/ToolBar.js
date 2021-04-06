@@ -3,14 +3,27 @@ import { Button, Icon } from "react-native-elements";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
-import { getToken } from "../UserCredentials";
+import { getToken, getProfilePicture } from "../UserCredentials";
 import constants from "../constants/constants";
 
 class ToolBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { user: null };
+  }
+  async componentDidMount() {
+    const userToken = await getToken();
+    const photo = await getProfilePicture();
+    let user = {
+      username: userToken.username,
+      photo: photo.profilePicture,
+    };
+    this.setState({ user: user });
+  }
+
   render() {
     const { navigation } = this.props;
-    const user = getToken();
-    const username = user.username;
+
     return (
       <View style={styles.ToolBarContainer}>
         <Button
@@ -73,6 +86,11 @@ class ToolBar extends React.Component {
           buttonStyle={{
             backgroundColor: "#F8F8F8",
           }}
+          onPress={() =>
+            navigation.navigate("ProfileScreen", {
+              user: this.state.user,
+            })
+          }
           icon={
             <Icon
               name="account"

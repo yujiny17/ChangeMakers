@@ -13,7 +13,6 @@ type Post
       }
       { allow: private, operations: [read, create, update] }
       { allow: public, operations: [read] }
-      { allow: private, provider: iam, operations: [create] } # Lambda function
     ]
   )
   @key(
@@ -50,12 +49,17 @@ type FollowRelationship
         operations: [read, create, delete]
       }
       { allow: private, operations: [read, create] }
-      { allow: private, provider: iam, operations: [read] } # Lambda function
     ]
   )
-  @key(fields: ["followeeId", "followerId"]) {
+  @key(fields: ["followeeId", "followerId"])
+  @key(
+    name: "ByFollower"
+    fields: ["followerId", "followeeId"]
+    queryField: "listFollowRelationshipsbyFollower"
+  ) {
   followeeId: ID!
   followerId: ID!
+  following: Boolean
 }
 
 type PersonalTimeline
@@ -68,7 +72,6 @@ type PersonalTimeline
         operations: [read, create, update, delete]
       }
       { allow: private, operations: [read, create] }
-      { allow: private, provider: iam, operations: [create] }
     ]
   )
   @key(
@@ -80,12 +83,6 @@ type PersonalTimeline
   postId: ID!
   createdAt: String
   post: Post @connection(fields: ["postId"])
-}
-
-type Mutation {
-  addCreatedPostToFollowersTimeline(postId: ID!): Post  # input is postId, return val is Post
-    @function(name: "addCreatedPostToFollowersTimeline-${env}")
-    @auth(rules: [{ allow: private, provider: userPools }])
 }
 
 type User @model @key(fields: ["username"]) {

@@ -190,6 +190,7 @@ export const getFollowRelationship = /* GraphQL */ `
     getFollowRelationship(followeeId: $followeeId, followerId: $followerId) {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }
@@ -215,6 +216,35 @@ export const listFollowRelationships = /* GraphQL */ `
       items {
         followeeId
         followerId
+        following
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const listFollowRelationshipsbyFollower = /* GraphQL */ `
+  query ListFollowRelationshipsbyFollower(
+    $followerId: ID
+    $followeeId: ModelIDKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelFollowRelationshipFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listFollowRelationshipsbyFollower(
+      followerId: $followerId
+      followeeId: $followeeId
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        followeeId
+        followerId
+        following
         createdAt
         updatedAt
       }

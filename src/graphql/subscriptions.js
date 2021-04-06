@@ -162,6 +162,7 @@ export const onCreateFollowRelationship = /* GraphQL */ `
     onCreateFollowRelationship {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }
@@ -172,6 +173,7 @@ export const onUpdateFollowRelationship = /* GraphQL */ `
     onUpdateFollowRelationship {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }
@@ -182,6 +184,7 @@ export const onDeleteFollowRelationship = /* GraphQL */ `
     onDeleteFollowRelationship {
       followeeId
       followerId
+      following
       createdAt
       updatedAt
     }

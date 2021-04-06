@@ -10,10 +10,11 @@ export declare class Post {
   readonly title?: string;
   readonly text?: string;
   readonly photos?: (string | null)[];
-  readonly createdAt?: string;
   readonly upvote?: number;
-  readonly downVote?: number;
-  readonly misinformationScore?: number;
+  readonly downvote?: number;
+  readonly totalvote?: number;
+  readonly misinformation?: number;
+  readonly createdAt?: string;
   constructor(init: ModelInit<Post>);
   static copyOf(source: Post, mutator: (draft: MutableModel<Post>) => MutableModel<Post> | void): Post;
 }

@@ -39,13 +39,6 @@ export const schema = {
                     "attributes": [],
                     "isArrayNullable": true
                 },
-                "createdAt": {
-                    "name": "createdAt",
-                    "isArray": false,
-                    "type": "String",
-                    "isRequired": false,
-                    "attributes": []
-                },
                 "upvote": {
                     "name": "upvote",
                     "isArray": false,
@@ -53,17 +46,31 @@ export const schema = {
                     "isRequired": false,
                     "attributes": []
                 },
-                "downVote": {
-                    "name": "downVote",
+                "downvote": {
+                    "name": "downvote",
                     "isArray": false,
                     "type": "Int",
                     "isRequired": false,
                     "attributes": []
                 },
-                "misinformationScore": {
-                    "name": "misinformationScore",
+                "totalvote": {
+                    "name": "totalvote",
                     "isArray": false,
                     "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "misinformation": {
+                    "name": "misinformation",
+                    "isArray": false,
+                    "type": "Int",
+                    "isRequired": false,
+                    "attributes": []
+                },
+                "createdAt": {
+                    "name": "createdAt",
+                    "isArray": false,
+                    "type": "String",
                     "isRequired": false,
                     "attributes": []
                 }
@@ -106,20 +113,14 @@ export const schema = {
                                 "allow": "private",
                                 "operations": [
                                     "read",
-                                    "create"
+                                    "create",
+                                    "update"
                                 ]
                             },
                             {
                                 "allow": "public",
                                 "operations": [
                                     "read"
-                                ]
-                            },
-                            {
-                                "allow": "private",
-                                "provider": "iam",
-                                "operations": [
-                                    "create"
                                 ]
                             }
                         ]
@@ -203,6 +204,17 @@ export const schema = {
                     }
                 },
                 {
+                    "type": "key",
+                    "properties": {
+                        "name": "ByFollower",
+                        "fields": [
+                            "followerId",
+                            "followeeId"
+                        ],
+                        "queryField": "listFollowRelationshipsbyFollower"
+                    }
+                },
+                {
                     "type": "auth",
                     "properties": {
                         "rules": [
@@ -222,13 +234,6 @@ export const schema = {
                                 "operations": [
                                     "read",
                                     "create"
-                                ]
-                            },
-                            {
-                                "allow": "private",
-                                "provider": "iam",
-                                "operations": [
-                                    "read"
                                 ]
                             }
                         ]
@@ -320,13 +325,6 @@ export const schema = {
                                 "allow": "private",
                                 "operations": [
                                     "read",
-                                    "create"
-                                ]
-                            },
-                            {
-                                "allow": "private",
-                                "provider": "iam",
-                                "operations": [
                                     "create"
                                 ]
                             }
@@ -451,5 +449,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "618102affd59cebe1e15698d89e5af2c"
+    "version": "a478579f449a90c269305ce72c5867a9"
 };

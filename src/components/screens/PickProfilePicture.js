@@ -77,7 +77,7 @@ class PickProfilePicture extends React.Component {
         graphqlOperation(updateUser, { input: input })
       );
       console.log("updated user", user);
-
+      setUserToken(userId);
       storeProfilePicture(photoId);
 
       // set user token to finalize log in

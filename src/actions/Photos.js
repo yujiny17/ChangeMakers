@@ -1,10 +1,7 @@
 import React from "react";
 import Storage from "@aws-amplify/storage";
 import { API, graphqlOperation } from "aws-amplify";
-import {
-  createPhoto,
-  //   createFollowRelationship,
-} from "../graphql/mutations";
+import { createPhoto } from "../graphql/mutations";
 import { v4 as uuidv4 } from "uuid";
 
 async function uploadPhotoS3(photo) {
