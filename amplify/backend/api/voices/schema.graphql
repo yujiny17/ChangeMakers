@@ -19,16 +19,23 @@ type Post
     name: "BySpecificOwner"
     fields: ["username", "createdAt"]
     queryField: "listPostsBySpecificOwner"
+  )
+  @key(
+    name: "ByPopularity"
+    fields: ["type", "totalvote"]
+    queryField: "listPostsByPopularity"
   ) {
   id: ID!
   username: String!
   title: String
   text: String
-  photos: [ID] # 	post: Post @connection(fields: ["id"])
+  photos: [ID]
   upvote: Int
   downvote: Int
-  totalvote: Int
+  totalvote: Int!
   misinformation: Int
+  topics: [String]
+  type: String!
   createdAt: String
 }
 
@@ -46,7 +53,7 @@ type FollowRelationship
       {
         allow: owner
         ownerField: "followerId"
-        operations: [read, create, delete]
+        operations: [read, create, update, delete]
       }
       { allow: private, operations: [read, create] }
     ]
@@ -59,6 +66,28 @@ type FollowRelationship
   ) {
   followeeId: ID!
   followerId: ID!
+  following: Boolean
+}
+
+type TopicFollowRelationship
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "followerId"
+        operations: [read, create, update, delete]
+      }
+      { allow: private, operations: [read, create] }
+    ]
+  )
+  @key(
+    name: "ByFollower"
+    fields: ["followerId", "topic"]
+    queryField: "listTopicFollowRelationshipsbyFollower"
+  ) {
+  followerId: ID!
+  topic: String!
   following: Boolean
 }
 
@@ -85,11 +114,25 @@ type PersonalTimeline
   post: Post @connection(fields: ["postId"])
 }
 
+type TopicTimeline
+  @model
+  @auth(rules: [{ allow: private, operations: [read, create, update, delete] }])
+  @key(
+    name: "ByTopic"
+    fields: ["topic", "createdAt"]
+    queryField: "listTopicTimelinesByTopic"
+  ) {
+  topic: String!
+  postId: ID!
+  createdAt: String
+  post: Post @connection(fields: ["postId"])
+}
+
 type User @model @key(fields: ["username"]) {
+  id: ID
   username: String!
   email: String!
   photo: String
-  # timelines: [ID]
 }
 
 type UserPostActivity @model @key(fields: ["username", "postId"]) {
@@ -99,4 +142,9 @@ type UserPostActivity @model @key(fields: ["username", "postId"]) {
   downvote: Boolean
   misinformation: Boolean
   # comments: []
+}
+
+type Topic @model @key(fields: ["topic"]) {
+  id: ID
+  topic: String!
 }

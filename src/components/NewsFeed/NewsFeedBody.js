@@ -1,5 +1,5 @@
 import React from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, RefreshControl, StyleSheet, Text, View } from "react-native";
 import { API, graphqlOperation } from "aws-amplify";
 
 // import { connect } from "react-redux";
@@ -43,7 +43,7 @@ class NewsFeedBody extends React.Component {
       console.log("Get user post activity error", error);
     }
     this.setState({ data: posts, loading: false });
-    // this.props.fetchPosts();
+    this.props.fetchPosts();
   }
 
   _renderPost({ item }) {
@@ -62,7 +62,13 @@ class NewsFeedBody extends React.Component {
           renderItem={this._renderPost}
           keyExtractor={(item) => item.id}
           style={{ width: 100 + "%" }}
-        ></FlatList>
+          // refreshControl={
+          //   <RefreshControl
+          //     refreshing={this.state.refreshing}
+          //     onRefresh={this._onRefresh()}
+          //   />
+          // }
+        />
       );
     } else {
       return (

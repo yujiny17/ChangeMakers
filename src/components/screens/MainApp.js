@@ -10,6 +10,7 @@ import {
   SearchScreen,
   ProfileScreen,
   FollowSearchScreen,
+  TopicScreen,
 } from "./index";
 
 import constants from "../../constants/constants";
@@ -22,18 +23,10 @@ class MainApp extends React.Component {
     return (
       <MainStack.Navigator>
         <MainStack.Screen
-          name="ProfileScreen"
-          component={ProfileScreen}
-          options={{
-            headerShown: false,
-          }}
-          initialParams={{
-            user: {
-              username: "testUser3",
-              // photo: "7c731802-e6ce-4fc6-a096-e790feea2eca",
-            },
-            ownProfile: true,
-          }}
+          name="TopicScreen"
+          component={TopicScreen}
+          options={{}}
+          initialParams={{ topic: "dog" }}
         />
         <MainStack.Screen
           name="NewsFeed"
@@ -86,13 +79,14 @@ class MainApp extends React.Component {
             headerStyle: styles.headerStyle,
           }}
         />
-        {/* <MainStack.Screen
+        <MainStack.Screen
           name="ProfileScreen"
           component={ProfileScreen}
           options={{
-            headerShown: false,
+            headerShown: true,
+            headerBackTitle: " ",
           }}
-        /> */}
+        />
         <MainStack.Screen
           name="FollowSearchScreen"
           component={FollowSearchScreen}
@@ -100,6 +94,11 @@ class MainApp extends React.Component {
             headerShown: true,
           }}
         />
+        {/* <MainStack.Screen
+          name="TopicScreen"
+          component={TopicScreen}
+          options={{}}
+        /> */}
       </MainStack.Navigator>
     );
   }

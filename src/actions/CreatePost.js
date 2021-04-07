@@ -5,6 +5,8 @@ import {
   createPost,
   createPhoto,
   createPersonalTimeline,
+  createTopic,
+  createTopicTimeline,
 } from "../graphql/mutations";
 import { listFollowRelationships } from "../graphql/queries";
 import { v4 as uuidv4 } from "uuid";
@@ -28,6 +30,22 @@ async function uploadPhotoDDB(key, postId) {
   return await API.graphql(graphqlOperation(createPhoto, { input: photo }));
 }
 
+// request creation for all topics, if already exists it will
+// throw an error but continue anyway.
+async function createTopics(topics) {
+  topics.forEach(async (topic) => {
+    try {
+      let resp = await API.graphql(
+        graphqlOperation(createTopic, { input: { topic: topic } })
+      );
+      console.log("resp", resp);
+    } catch (error) {
+      console.log("possible error creating topic");
+    }
+  });
+  return;
+}
+
 async function getFollowers(username) {
   let followersList = [];
   try {
@@ -39,12 +57,11 @@ async function getFollowers(username) {
 
     // only use relationships where follow field = true
     possFollowers.forEach((rel) => {
-      console.log("checking rel", rel);
+      // console.log("checking rel", rel);
       if (rel.following) {
         followersList.push(rel);
       }
     });
-
     console.log("Followers of", username, "are:", followersList);
     return followersList;
   } catch (error) {
@@ -55,16 +72,6 @@ async function getFollowers(username) {
 
 async function addPostToFollowersTimeline(post) {
   try {
-    // for testing purposes add follower relationships to "testUser"
-    // await API.graphql(
-    //   graphqlOperation(createFollowRelationship, {
-    //     input: {
-    //       followeeId: "testUser",
-    //       followerId: "jester",
-    //     },
-    //   })
-    // );
-
     // get list of current user's followers
     let user = await getToken();
     let followRelationshipsList = await getFollowers(user.username);
@@ -76,7 +83,7 @@ async function addPostToFollowersTimeline(post) {
     await Promise.all(
       followRelationshipsList.map(async (relationship) => {
         const followerId = relationship.followerId;
-        console.log("adding post with id", post.id, "to user", followerId);
+        console.log("adding post to user", followerId);
         const timelineAddition = { username: followerId, postId: post.id };
         await API.graphql(
           graphqlOperation(createPersonalTimeline, { input: timelineAddition })
@@ -87,27 +94,31 @@ async function addPostToFollowersTimeline(post) {
     console.log("ERROR in adding post to followers' timelines:", err);
     return;
   }
-
-  // Get List of Followers
-  //   await API.graphql(
-  //     graphqlOperation(addCreatedPostToFollowersTimeline, {
-  //       postId: test,
-  //     })
-
-  // publish posts to followers' timelines
 }
 
-async function post(formState, photos) {
+async function addPostToTopicsTimeline(post, topics) {
+  try {
+    // add post to each topic's timeline
+    await Promise.all(
+      topics.map(async (topic) => {
+        console.log("adding post to topic", topic);
+        const timelineAddition = { topic: topic, postId: post.id };
+        let resp = await API.graphql(
+          graphqlOperation(createTopicTimeline, { input: timelineAddition })
+        );
+        // console.log(resp);
+      })
+    );
+  } catch (err) {
+    console.log("ERROR in adding post to topic's timeline:", err);
+    return;
+  }
+}
+
+async function post(formState, photos, topics) {
   // console.log("formState:", formState);
   // console.log("photos:", photos);
-
-  // TESTING: publish post to followers' timelines
-  //   addPostToFollowersTimeline({
-  //     ...formState,
-  //     id: "testId",
-  //     username: "testUser",
-  //   });
-  //   return;
+  // console.log("topics:", topics);
 
   if (formState["title"] == "") {
     alert("Title is required.");
@@ -121,7 +132,6 @@ async function post(formState, photos) {
     const username = userToken.username;
 
     let photoArray = [];
-
     // upload photos to S3 and DDB
     if (photos.length > 0) {
       let p = await Promise.all(photos.map((photo) => uploadPhotoS3(photo)));
@@ -132,6 +142,9 @@ async function post(formState, photos) {
       resp.map((promise) => photoArray.push(promise.data.createPhoto.id));
     }
 
+    // create topic in DDB
+    createTopics(topics);
+
     // create post in DDB
     post = {
       id: id,
@@ -141,12 +154,19 @@ async function post(formState, photos) {
       downvote: 0,
       misinformation: 0,
       totalvote: 0,
+      topics: topics,
+      type: "post",
       ...formState,
     };
-    console.log("Creating post with id:", post.id);
+
     console.log("Creating post", post);
     await API.graphql(graphqlOperation(createPost, { input: post }));
+
+    // add post to followers' timelines
     addPostToFollowersTimeline(post);
+
+    // add post to each of the topic's timelines
+    addPostToTopicsTimeline(post, topics);
   } catch (err) {
     console.log("ERROR in Create Post:", err);
   }

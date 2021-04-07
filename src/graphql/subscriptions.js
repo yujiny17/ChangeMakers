@@ -37,6 +37,7 @@ export const onDeletePhoto = /* GraphQL */ `
 export const onCreateUser = /* GraphQL */ `
   subscription OnCreateUser {
     onCreateUser {
+      id
       username
       email
       photo
@@ -48,6 +49,7 @@ export const onCreateUser = /* GraphQL */ `
 export const onUpdateUser = /* GraphQL */ `
   subscription OnUpdateUser {
     onUpdateUser {
+      id
       username
       email
       photo
@@ -59,6 +61,7 @@ export const onUpdateUser = /* GraphQL */ `
 export const onDeleteUser = /* GraphQL */ `
   subscription OnDeleteUser {
     onDeleteUser {
+      id
       username
       email
       photo
@@ -106,6 +109,36 @@ export const onDeleteUserPostActivity = /* GraphQL */ `
     }
   }
 `;
+export const onCreateTopic = /* GraphQL */ `
+  subscription OnCreateTopic {
+    onCreateTopic {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateTopic = /* GraphQL */ `
+  subscription OnUpdateTopic {
+    onUpdateTopic {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteTopic = /* GraphQL */ `
+  subscription OnDeleteTopic {
+    onDeleteTopic {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const onCreatePost = /* GraphQL */ `
   subscription OnCreatePost {
     onCreatePost {
@@ -118,6 +151,8 @@ export const onCreatePost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -135,6 +170,8 @@ export const onUpdatePost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -152,6 +189,8 @@ export const onDeletePost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -190,6 +229,42 @@ export const onDeleteFollowRelationship = /* GraphQL */ `
     }
   }
 `;
+export const onCreateTopicFollowRelationship = /* GraphQL */ `
+  subscription OnCreateTopicFollowRelationship {
+    onCreateTopicFollowRelationship {
+      id
+      followerId
+      topic
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onUpdateTopicFollowRelationship = /* GraphQL */ `
+  subscription OnUpdateTopicFollowRelationship {
+    onUpdateTopicFollowRelationship {
+      id
+      followerId
+      topic
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const onDeleteTopicFollowRelationship = /* GraphQL */ `
+  subscription OnDeleteTopicFollowRelationship {
+    onDeleteTopicFollowRelationship {
+      id
+      followerId
+      topic
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const onCreatePersonalTimeline = /* GraphQL */ `
   subscription OnCreatePersonalTimeline {
     onCreatePersonalTimeline {
@@ -208,6 +283,8 @@ export const onCreatePersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -232,6 +309,8 @@ export const onUpdatePersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -256,6 +335,86 @@ export const onDeletePersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const onCreateTopicTimeline = /* GraphQL */ `
+  subscription OnCreateTopicTimeline {
+    onCreateTopicTimeline {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const onUpdateTopicTimeline = /* GraphQL */ `
+  subscription OnUpdateTopicTimeline {
+    onUpdateTopicTimeline {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const onDeleteTopicTimeline = /* GraphQL */ `
+  subscription OnDeleteTopicTimeline {
+    onDeleteTopicTimeline {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
         createdAt
         updatedAt
       }

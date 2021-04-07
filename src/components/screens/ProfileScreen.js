@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Image,
+  PixelRatio,
   View,
   Text,
   TextInput,
@@ -25,6 +26,7 @@ import {
 import {
   createFollowRelationship,
   updateFollowRelationship,
+  createPersonalTimeline,
 } from "../../graphql/mutations";
 
 import constants from "../../constants/constants";
@@ -80,7 +82,7 @@ class ProfileScreen extends React.Component {
       //   console.log("response", relationship);
       return relationship;
     } catch (error) {
-      console.log("error fetching user posts", error);
+      console.log("error fetching relationship", error);
       return null;
     }
   }
@@ -114,10 +116,6 @@ class ProfileScreen extends React.Component {
         "followers:",
         followersList
       );
-      //   this.setState({
-      //     followers: followersList,
-      //     numFollowers: followersList.length,
-      //   });
       return followersList;
     } catch (error) {
       console.log("error fetching followers", error);
@@ -144,10 +142,6 @@ class ProfileScreen extends React.Component {
         "users:",
         followingList
       );
-      //   this.setState({
-      //     following: followingList,
-      //     numFollowing: followingList.length,
-      //   });
       return followingList;
     } catch (error) {
       console.log("error fetching following", error);
@@ -166,7 +160,6 @@ class ProfileScreen extends React.Component {
       //   console.log("resp", resp);
       posts = resp.data.listPostsBySpecificOwner.items;
       console.log(username, "has", posts.length, "posts");
-      //   this.setState({ posts: posts });
       return posts;
     } catch (error) {
       console.log("error fetching user posts", error);
@@ -185,6 +178,10 @@ class ProfileScreen extends React.Component {
 
     console.log("user profile for", username);
 
+    this.props.navigation.setOptions({
+      headerTitle: username,
+    });
+
     let currUser = await getToken();
     if (currUser.username == username) {
       ownProfile = true;
@@ -196,9 +193,9 @@ class ProfileScreen extends React.Component {
       followRelationship = relationship;
     }
     console.log("curr relationship", relationship);
-    // followersList = await this.getFollowers(username);
-    // followingList = await this.getFollowing(username);
-    // posts = await this.getPosts(username);
+    followersList = await this.getFollowers(username);
+    followingList = await this.getFollowing(username);
+    posts = await this.getPosts(username);
 
     this.setState({
       currUser: currUser.username,
@@ -238,6 +235,27 @@ class ProfileScreen extends React.Component {
           relationship = resp.data.updateFollowRelationship;
         }
         // console.log("response", relationship);
+        // add followee's posts onto follower's timeline
+        let followeePosts;
+        resp = await API.graphql(
+          graphqlOperation(listPostsBySpecificOwner, { username: profileUser })
+        );
+        //   console.log("resp", resp);
+        followeePosts = resp.data.listPostsBySpecificOwner.items;
+        // add all the followee's posts to user timeline
+        resp = await Promise.all(
+          followeePosts.map(async (post) => {
+            console.log("adding post", post, "to user", currUser);
+            const timelineAddition = { username: currUser, postId: post.id };
+            await API.graphql(
+              graphqlOperation(createPersonalTimeline, {
+                input: timelineAddition,
+              })
+            );
+          })
+        );
+        console.log("resp for adding all followee's posts", resp);
+
         this.setState({ followRelationship: relationship });
         return relationship;
       } catch (error) {
@@ -252,10 +270,8 @@ class ProfileScreen extends React.Component {
           following: false,
         };
         let resp = await API.graphql(
-          //   graphqlOperation(deleteFollowRelationship, { input: input })
           graphqlOperation(updateFollowRelationship, { input: input })
         );
-        // relationship = resp.data.deleteFollowRelationship;
         relationship = resp.data.updateFollowRelationship;
         console.log("response", relationship);
         this.setState({ followRelationship: relationship });
@@ -313,7 +329,7 @@ class ProfileScreen extends React.Component {
             <View style={styles.userPhotoName}>
               <View style={styles.userPhotoName2}>
                 <View style={styles.userPhotoContainer}>
-                  {userPhotoExists ? (
+                  {/* {userPhotoExists ? (
                     <S3Image imgKey={user.photo} style={styles.userPhoto} />
                   ) : (
                     <Icon
@@ -322,7 +338,13 @@ class ProfileScreen extends React.Component {
                       color="black"
                       size={100}
                     />
-                  )}
+                  )} */}
+                  <Icon
+                    name="account-circle"
+                    type="material-community"
+                    color="black"
+                    size={100}
+                  />
                 </View>
                 <View style={styles.userNameContainer}>
                   <Text style={styles.userName}>{user.username}</Text>
@@ -393,7 +415,7 @@ const styles = StyleSheet.create({
   },
   belowAppStatusContainer: {
     // flex: 1,
-    height: Dimensions.get("window").height * 0.95,
+    height: Dimensions.get("window").height * 0.9,
     width: Dimensions.get("window").width,
     backgroundColor: constants.styleConstants.white,
     flexDirection: "column",
@@ -421,12 +443,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   userPhotoContainer: {
-    height: 100,
-    width: 100,
+    // height: 100,
+    // width: 100,
   },
   userPhoto: {
-    height: 100,
-    width: 100,
+    // height: 100,
+    // width: 100,
+    height: 320 / PixelRatio.get(),
+    width: 320 / PixelRatio.get(),
     borderRadius: 50,
   },
   userNameContainer: {

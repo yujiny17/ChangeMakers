@@ -42,7 +42,7 @@ const UserResult = (props) => {
       <View style={styles.userPhotoName}>
         <View style={styles.userPhotoName2}>
           <View style={styles.userPhotoContainer}>
-            {userPhotoExists ? (
+            {/* {userPhotoExists ? (
               <S3Image imgKey={user.photo} style={styles.userPhoto} />
             ) : (
               <Icon
@@ -51,7 +51,13 @@ const UserResult = (props) => {
                 color="grey"
                 size={50}
               />
-            )}
+            )} */}
+            <Icon
+              name="account-circle"
+              type="material-community"
+              color="black"
+              size={40}
+            />
           </View>
           <View style={styles.userNameContainer}>
             <Text style={styles.userName}>{user.username}</Text>
@@ -65,13 +71,6 @@ const UserResult = (props) => {
 export default UserResult;
 
 const styles = StyleSheet.create({
-  container: {
-    width: 100 + "%",
-    backgroundColor: constants.styleConstants.postBackgroundColor,
-    borderBottomWidth: constants.styleConstants.betweenPostsWidth,
-    borderBottomColor: constants.styleConstants.grey,
-    paddingTop: 5,
-  },
   userBar: {
     height: constants.styleConstants.rowHeight * 1.1,
     width: 100 + "%",

@@ -33,6 +33,7 @@ export const listPhotos = /* GraphQL */ `
 export const getUser = /* GraphQL */ `
   query GetUser($username: String!) {
     getUser(username: $username) {
+      id
       username
       email
       photo
@@ -57,6 +58,7 @@ export const listUsers = /* GraphQL */ `
       sortDirection: $sortDirection
     ) {
       items {
+        id
         username
         email
         photo
@@ -110,6 +112,41 @@ export const listUserPostActivitys = /* GraphQL */ `
     }
   }
 `;
+export const getTopic = /* GraphQL */ `
+  query GetTopic($topic: String!) {
+    getTopic(topic: $topic) {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listTopics = /* GraphQL */ `
+  query ListTopics(
+    $topic: String
+    $filter: ModelTopicFilterInput
+    $limit: Int
+    $nextToken: String
+    $sortDirection: ModelSortDirection
+  ) {
+    listTopics(
+      topic: $topic
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      sortDirection: $sortDirection
+    ) {
+      items {
+        id
+        topic
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
 export const listPosts = /* GraphQL */ `
   query ListPosts(
     $filter: ModelPostFilterInput
@@ -127,6 +164,8 @@ export const listPosts = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -146,6 +185,8 @@ export const getPost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -178,6 +219,44 @@ export const listPostsBySpecificOwner = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const listPostsByPopularity = /* GraphQL */ `
+  query ListPostsByPopularity(
+    $type: String
+    $totalvote: ModelIntKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelPostFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listPostsByPopularity(
+      type: $type
+      totalvote: $totalvote
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -252,6 +331,70 @@ export const listFollowRelationshipsbyFollower = /* GraphQL */ `
     }
   }
 `;
+export const getTopicFollowRelationship = /* GraphQL */ `
+  query GetTopicFollowRelationship($id: ID!) {
+    getTopicFollowRelationship(id: $id) {
+      id
+      followerId
+      topic
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const listTopicFollowRelationships = /* GraphQL */ `
+  query ListTopicFollowRelationships(
+    $filter: ModelTopicFollowRelationshipFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listTopicFollowRelationships(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        followerId
+        topic
+        following
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
+export const listTopicFollowRelationshipsbyFollower = /* GraphQL */ `
+  query ListTopicFollowRelationshipsbyFollower(
+    $followerId: ID
+    $topic: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelTopicFollowRelationshipFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listTopicFollowRelationshipsbyFollower(
+      followerId: $followerId
+      topic: $topic
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        followerId
+        topic
+        following
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
 export const getPersonalTimeline = /* GraphQL */ `
   query GetPersonalTimeline($id: ID!) {
     getPersonalTimeline(id: $id) {
@@ -270,6 +413,8 @@ export const getPersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -303,6 +448,8 @@ export const listPersonalTimelines = /* GraphQL */ `
           downvote
           totalvote
           misinformation
+          topics
+          type
           createdAt
           updatedAt
         }
@@ -344,6 +491,110 @@ export const listPersonalTimelinesByOwner = /* GraphQL */ `
           downvote
           totalvote
           misinformation
+          topics
+          type
+          createdAt
+          updatedAt
+        }
+      }
+      nextToken
+    }
+  }
+`;
+export const getTopicTimeline = /* GraphQL */ `
+  query GetTopicTimeline($id: ID!) {
+    getTopicTimeline(id: $id) {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const listTopicTimelines = /* GraphQL */ `
+  query ListTopicTimelines(
+    $filter: ModelTopicTimelineFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listTopicTimelines(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        topic
+        postId
+        createdAt
+        updatedAt
+        post {
+          id
+          username
+          title
+          text
+          photos
+          upvote
+          downvote
+          totalvote
+          misinformation
+          topics
+          type
+          createdAt
+          updatedAt
+        }
+      }
+      nextToken
+    }
+  }
+`;
+export const listTopicTimelinesByTopic = /* GraphQL */ `
+  query ListTopicTimelinesByTopic(
+    $topic: String
+    $createdAt: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelTopicTimelineFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listTopicTimelinesByTopic(
+      topic: $topic
+      createdAt: $createdAt
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        topic
+        postId
+        createdAt
+        updatedAt
+        post {
+          id
+          username
+          title
+          text
+          photos
+          upvote
+          downvote
+          totalvote
+          misinformation
+          topics
+          type
           createdAt
           updatedAt
         }

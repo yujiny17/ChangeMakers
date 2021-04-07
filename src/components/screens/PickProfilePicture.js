@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  PixelRatio,
   StyleSheet,
   TouchableOpacity,
   Text,
@@ -33,7 +34,14 @@ class PickProfilePicture extends React.Component {
   async _processProfileImageAsync(uri) {
     const file = await ImageManipulator.manipulateAsync(
       uri,
-      [{ resize: { height: 110, width: 110 } }],
+      [
+        {
+          resize: {
+            height: 320 / PixelRatio.get(),
+            width: 320 / PixelRatio.get(),
+          },
+        },
+      ],
       { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
     );
     return file;

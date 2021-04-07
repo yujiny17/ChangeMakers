@@ -2,44 +2,81 @@ import React from "react";
 import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
 import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { S3Image } from "aws-amplify-react-native";
 import { useNavigation } from "@react-navigation/native";
+import { getToken, getProfilePicture } from "../../UserCredentials";
 
 import constants from "../../constants/constants";
 
-const UserBar = (props) => {
-  const imageUri =
-    "https://media-exp1.licdn.com/dms/image/C4E03AQFoTpoq2QHAVA/profile-displayphoto-shrink_100_100/0/1588884556380?e=1620864000&v=beta&t=oaJ-DWkzGysRlkZDynxup5BK8qFpn-uEVmyQ1Tuu5qM";
-  return (
-    <TouchableOpacity
-      style={styles.userBar}
-      onPress={() => props.onPress()}
-      activeOpacity={1.0}
-    >
-      <View style={styles.userPhotoName}>
-        <Image
-          style={styles.userPhoto}
-          source={{
-            uri: imageUri,
-          }}
-        />
-        <View style={styles.userNameContainer}>
-          <Text style={styles.userName}>Yujin</Text>
-        </View>
-      </View>
+class UserBar extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      user: {
+        username: null,
+        photo: null,
+      },
+    };
+  }
 
-      <View>
-        <Text
-          style={{
-            fontSize: 30,
-            textAlignVertical: "top",
-          }}
-        >
-          ...
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
+  async componentDidMount() {
+    const userToken = await getToken();
+    const photo = await getProfilePicture();
+    let user = {
+      username: userToken.username,
+      photo: photo.profilePicture,
+    };
+    this.setState({ user: user });
+  }
+
+  render() {
+    let userPhotoExists = false;
+    if (this.state.user?.photo != null) {
+      userPhotoExists = true;
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.userBar}
+        onPress={() => this.props.onPress()}
+        activeOpacity={1.0}
+      >
+        <View style={styles.userPhotoName}>
+          {/* {userPhotoExists ? (
+            <S3Image imgKey={this.state.user.photo} style={styles.userPhoto} />
+          ) : (
+            <Icon
+              name="account-circle"
+              type="material-community"
+              color="black"
+              size={40}
+            />
+          )} */}
+          <Icon
+            name="account-circle"
+            type="material-community"
+            color="black"
+            size={40}
+          />
+          <View style={styles.userNameContainer}>
+            <Text style={styles.userName}>Yujin</Text>
+          </View>
+        </View>
+
+        <View>
+          <Text
+            style={{
+              fontSize: 30,
+              textAlignVertical: "top",
+            }}
+          >
+            ...
+          </Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
 
 export default UserBar;
 
@@ -60,6 +97,7 @@ const styles = StyleSheet.create({
   },
   userPhotoName: {
     flexDirection: "row",
+    paddingHorizontal: 5,
   },
   userPhoto: {
     height: 40,

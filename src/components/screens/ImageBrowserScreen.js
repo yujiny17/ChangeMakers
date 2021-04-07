@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import {
+  PixelRatio,
   StyleSheet,
   View,
   Text,
@@ -36,6 +37,7 @@ export default class ImageBrowserScreen extends Component {
             type: "image/jpg",
           });
         }
+        console.log("returning photos", photoSelection);
         navigation.navigate("CreatePostForm", { photos: photoSelection });
       })
       .catch((e) => console.log(e));
@@ -44,7 +46,14 @@ export default class ImageBrowserScreen extends Component {
   async _processImageAsync(uri) {
     const file = await ImageManipulator.manipulateAsync(
       uri,
-      [{ resize: { width: 1080 } }],
+      [
+        {
+          resize: {
+            height: 1080 / PixelRatio.get(),
+            width: 1080 / PixelRatio.get(),
+          },
+        },
+      ],
       { compress: 0.8, format: ImageManipulator.SaveFormat.JPEG }
     );
     return file;

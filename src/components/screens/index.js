@@ -9,6 +9,7 @@ import ImageBrowserScreen from "./ImageBrowserScreen";
 import SearchScreen from "../screens/SearchScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import FollowSearchScreen from "../screens/FollowSearchScreen";
+import TopicScreen from "../screens/TopicScreen";
 export {
   LogIn,
   CreateAccount,
@@ -21,4 +22,5 @@ export {
   SearchScreen,
   ProfileScreen,
   FollowSearchScreen,
+  TopicScreen,
 };

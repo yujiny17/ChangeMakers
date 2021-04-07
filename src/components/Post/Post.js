@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import {
+  PixelRatio,
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Dimensions,
+} from "react-native";
 import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
@@ -8,6 +15,8 @@ import { API, graphqlOperation } from "aws-amplify";
 import { getUserPostActivity } from "../../graphql/queries";
 import { createUserPostActivity } from "../../graphql/mutations";
 import { getToken } from "../../UserCredentials";
+
+import { S3Image } from "aws-amplify-react-native";
 
 import UserBar from "./UserBar";
 import PostActivityBar from "./PostActivityBar";
@@ -61,6 +70,11 @@ class Post extends React.Component {
           downvote: false,
           misinformation: false,
         };
+        console.log(
+          "trying to create user activity with",
+          username,
+          newActivity
+        );
         const resp = await API.graphql(
           graphqlOperation(createUserPostActivity, { input: newActivity })
         );
@@ -93,6 +107,7 @@ class Post extends React.Component {
 
   render() {
     const post = this.props.post;
+
     return (
       <View style={styles.container}>
         <UserBar onPress={() => this.focusPost()} />
@@ -105,19 +120,40 @@ class Post extends React.Component {
           <Text key={this.props.post.id} style={styles.titleText}>
             {post.title}
           </Text>
-          <Image
-            style={{ width: 100 + "%", height: 200 }}
-            source={{
-              uri:
-                "https://www.therobinreport.com/wp-content/uploads/2015/09/activism_featured1-850x560.jpg",
-            }}
-          />
+          <Text style={styles.textInputContainer}>{post.text}</Text>
+          {DisplayPhotos(post.photos)}
         </TouchableOpacity>
+        {DisplayTopics(post.topics)}
         <PostActivityBar post={post} focusPost={() => this.focusPost()} />
       </View>
     );
   }
 }
+
+const DisplayTopics = (topics) => {
+  if (topics == null || topics?.length <= 0) return;
+  console.log("topics:", topics);
+  return (
+    <View style={styles.displayTopics}>
+      {topics.map((topic, i) => (
+        <View style={styles.topicInputContainer} key={i}>
+          <Text style={styles.topicTextInputContainer}>{topics[i]}</Text>
+        </View>
+      ))}
+    </View>
+  );
+};
+
+const DisplayPhotos = (photos) => {
+  if (photos == null || photos?.length <= 0) return;
+  return (
+    <View style={styles.displayPhotos}>
+      {photos.map((photoId, i) => (
+        <S3Image imgKey={photoId} style={styles.postPhoto} />
+      ))}
+    </View>
+  );
+};
 
 export default function (props) {
   const navigation = useNavigation();
@@ -130,8 +166,6 @@ const styles = StyleSheet.create({
     backgroundColor: constants.styleConstants.postBackgroundColor,
     borderBottomWidth: constants.styleConstants.betweenPostsWidth,
     borderBottomColor: constants.styleConstants.grey,
-    // justifyContent: "flex-start,"
-    // paddingTop: 0,
   },
   postContainer: {
     justifyContent: "center",
@@ -143,19 +177,48 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: constants.styleConstants.black,
     fontSize: 20,
+    paddingLeft: 10,
   },
-  // iconBar: {
-  //   height: (constants.styleConstants.rowHeight * 4) / 5,
-  //   padding: 5,
-  //   paddingHorizontal: 15,
-  //   flexDirection: "row",
-  //   justifyContent: "space-around",
-  // },
-  // voteContainer: {
-  //   flex: 1.25,
-  //   height: 100 + "%",
-  //   // width: 100 + "%",
-  //   flexDirection: "row",
-  //   justifyContent: "center",
-  // },
+  textInputContainer: {
+    width: 100 + "%",
+    color: constants.styleConstants.black,
+    paddingTop: 10,
+    paddingLeft: 10,
+    fontSize: 20,
+    flexGrow: 1,
+  },
+  displayTopics: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    flexWrap: "wrap",
+    paddingHorizontal: 5,
+  },
+  topicInputContainer: {
+    marginTop: 5,
+    marginLeft: 5,
+    backgroundColor: constants.styleConstants.orange,
+    borderColor: constants.styleConstants.orange,
+    borderWidth: 1,
+    borderRadius: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  topicTextInputContainer: {
+    color: constants.styleConstants.white,
+    paddingHorizontal: 5,
+    fontSize: 18,
+  },
+  displayPhotos: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    flexWrap: "wrap",
+    paddingHorizontal: 10,
+  },
+  postPhoto: {
+    height: 1080 / PixelRatio.get(),
+    width: 1080 / PixelRatio.get(),
+  },
 });

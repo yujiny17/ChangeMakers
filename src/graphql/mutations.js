@@ -43,26 +43,13 @@ export const deletePhoto = /* GraphQL */ `
     }
   }
 `;
-export const updateFollowRelationship = /* GraphQL */ `
-  mutation UpdateFollowRelationship(
-    $input: UpdateFollowRelationshipInput!
-    $condition: ModelFollowRelationshipConditionInput
-  ) {
-    updateFollowRelationship(input: $input, condition: $condition) {
-      followeeId
-      followerId
-      following
-      createdAt
-      updatedAt
-    }
-  }
-`;
 export const createUser = /* GraphQL */ `
   mutation CreateUser(
     $input: CreateUserInput!
     $condition: ModelUserConditionInput
   ) {
     createUser(input: $input, condition: $condition) {
+      id
       username
       email
       photo
@@ -77,6 +64,7 @@ export const updateUser = /* GraphQL */ `
     $condition: ModelUserConditionInput
   ) {
     updateUser(input: $input, condition: $condition) {
+      id
       username
       email
       photo
@@ -91,6 +79,7 @@ export const deleteUser = /* GraphQL */ `
     $condition: ModelUserConditionInput
   ) {
     deleteUser(input: $input, condition: $condition) {
+      id
       username
       email
       photo
@@ -147,6 +136,45 @@ export const deleteUserPostActivity = /* GraphQL */ `
     }
   }
 `;
+export const createTopic = /* GraphQL */ `
+  mutation CreateTopic(
+    $input: CreateTopicInput!
+    $condition: ModelTopicConditionInput
+  ) {
+    createTopic(input: $input, condition: $condition) {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateTopic = /* GraphQL */ `
+  mutation UpdateTopic(
+    $input: UpdateTopicInput!
+    $condition: ModelTopicConditionInput
+  ) {
+    updateTopic(input: $input, condition: $condition) {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteTopic = /* GraphQL */ `
+  mutation DeleteTopic(
+    $input: DeleteTopicInput!
+    $condition: ModelTopicConditionInput
+  ) {
+    deleteTopic(input: $input, condition: $condition) {
+      id
+      topic
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const createPost = /* GraphQL */ `
   mutation CreatePost(
     $input: CreatePostInput!
@@ -162,6 +190,8 @@ export const createPost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -182,6 +212,8 @@ export const updatePost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -202,6 +234,8 @@ export const deletePost = /* GraphQL */ `
       downvote
       totalvote
       misinformation
+      topics
+      type
       createdAt
       updatedAt
     }
@@ -221,6 +255,20 @@ export const createFollowRelationship = /* GraphQL */ `
     }
   }
 `;
+export const updateFollowRelationship = /* GraphQL */ `
+  mutation UpdateFollowRelationship(
+    $input: UpdateFollowRelationshipInput!
+    $condition: ModelFollowRelationshipConditionInput
+  ) {
+    updateFollowRelationship(input: $input, condition: $condition) {
+      followeeId
+      followerId
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
 export const deleteFollowRelationship = /* GraphQL */ `
   mutation DeleteFollowRelationship(
     $input: DeleteFollowRelationshipInput!
@@ -229,6 +277,51 @@ export const deleteFollowRelationship = /* GraphQL */ `
     deleteFollowRelationship(input: $input, condition: $condition) {
       followeeId
       followerId
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const createTopicFollowRelationship = /* GraphQL */ `
+  mutation CreateTopicFollowRelationship(
+    $input: CreateTopicFollowRelationshipInput!
+    $condition: ModelTopicFollowRelationshipConditionInput
+  ) {
+    createTopicFollowRelationship(input: $input, condition: $condition) {
+      id
+      followerId
+      topic
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const updateTopicFollowRelationship = /* GraphQL */ `
+  mutation UpdateTopicFollowRelationship(
+    $input: UpdateTopicFollowRelationshipInput!
+    $condition: ModelTopicFollowRelationshipConditionInput
+  ) {
+    updateTopicFollowRelationship(input: $input, condition: $condition) {
+      id
+      followerId
+      topic
+      following
+      createdAt
+      updatedAt
+    }
+  }
+`;
+export const deleteTopicFollowRelationship = /* GraphQL */ `
+  mutation DeleteTopicFollowRelationship(
+    $input: DeleteTopicFollowRelationshipInput!
+    $condition: ModelTopicFollowRelationshipConditionInput
+  ) {
+    deleteTopicFollowRelationship(input: $input, condition: $condition) {
+      id
+      followerId
+      topic
       following
       createdAt
       updatedAt
@@ -256,6 +349,8 @@ export const createPersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -283,6 +378,8 @@ export const updatePersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
@@ -310,6 +407,95 @@ export const deletePersonalTimeline = /* GraphQL */ `
         downvote
         totalvote
         misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const createTopicTimeline = /* GraphQL */ `
+  mutation CreateTopicTimeline(
+    $input: CreateTopicTimelineInput!
+    $condition: ModelTopicTimelineConditionInput
+  ) {
+    createTopicTimeline(input: $input, condition: $condition) {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const updateTopicTimeline = /* GraphQL */ `
+  mutation UpdateTopicTimeline(
+    $input: UpdateTopicTimelineInput!
+    $condition: ModelTopicTimelineConditionInput
+  ) {
+    updateTopicTimeline(input: $input, condition: $condition) {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+export const deleteTopicTimeline = /* GraphQL */ `
+  mutation DeleteTopicTimeline(
+    $input: DeleteTopicTimelineInput!
+    $condition: ModelTopicTimelineConditionInput
+  ) {
+    deleteTopicTimeline(input: $input, condition: $condition) {
+      id
+      topic
+      postId
+      createdAt
+      updatedAt
+      post {
+        id
+        username
+        title
+        text
+        photos
+        upvote
+        downvote
+        totalvote
+        misinformation
+        topics
+        type
         createdAt
         updatedAt
       }
