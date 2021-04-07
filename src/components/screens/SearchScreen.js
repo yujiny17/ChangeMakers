@@ -98,7 +98,7 @@ class SearchScreen extends React.Component {
   }
 
   _body() {
-    console.log("results", this.state.results);
+    // console.log("results", this.state.results);
     // if just switched, no applicable results will have been
     // loaded yet
     if (this.state.results == null) return;
@@ -130,8 +130,11 @@ class SearchScreen extends React.Component {
   _optionBar() {
     if (this.state.focus == "topics") {
       return (
-        <View style={styles.optionBar} onPress={() => this._focus("topics")}>
-          <TouchableOpacity style={styles.focusedOptionContainer}>
+        <View style={styles.optionBar}>
+          <TouchableOpacity
+            style={styles.focusedOptionContainer}
+            onPress={() => this._focus("topics")}
+          >
             <Text style={styles.topicsText}>Topics</Text>
           </TouchableOpacity>
           <TouchableOpacity
@@ -211,13 +214,6 @@ class SearchScreen extends React.Component {
         </View>
         {optionBar}
         {body}
-        {/* {this.state.users != null && (
-          <ScrollView style={styles.bodyContainer}>
-            {this.state.users.map((user, i) => (
-              <UserResult user={user} key={i} />
-            ))}
-          </ScrollView>
-        )} */}
       </View>
     );
   }

@@ -55,7 +55,7 @@ type FollowRelationship
         ownerField: "followerId"
         operations: [read, create, update, delete]
       }
-      { allow: private, operations: [read, create] }
+      { allow: private, operations: [read, create, update] }
     ]
   )
   @key(fields: ["followeeId", "followerId"])
@@ -78,16 +78,12 @@ type TopicFollowRelationship
         ownerField: "followerId"
         operations: [read, create, update, delete]
       }
-      { allow: private, operations: [read, create] }
+      { allow: private, operations: [read, create, update, delete] }
     ]
   )
-  @key(
-    name: "ByFollower"
-    fields: ["followerId", "topic"]
-    queryField: "listTopicFollowRelationshipsbyFollower"
-  ) {
+  @key(fields: ["followerId", "topic"]) {
   followerId: ID!
-  topic: String!
+  topic: ID!
   following: Boolean
 }
 

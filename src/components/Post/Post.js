@@ -27,7 +27,6 @@ class Post extends React.Component {
     super(props);
     {
       this.state = {
-        screenWidth: 0,
         loadingActivity: true,
         activity: [],
       };
@@ -70,11 +69,11 @@ class Post extends React.Component {
           downvote: false,
           misinformation: false,
         };
-        console.log(
-          "trying to create user activity with",
-          username,
-          newActivity
-        );
+        // console.log(
+        //   "trying to create user activity with",
+        //   username,
+        //   newActivity
+        // );
         const resp = await API.graphql(
           graphqlOperation(createUserPostActivity, { input: newActivity })
         );
@@ -88,8 +87,6 @@ class Post extends React.Component {
   }
 
   async componentDidMount() {
-    this.setState({ screenWidth: Dimensions.get("window").width });
-
     let activity = await this.loadUserActivity();
     // console.log(activity);
     this.setState({ loadingActivity: false, activity: activity });
@@ -107,7 +104,6 @@ class Post extends React.Component {
 
   render() {
     const post = this.props.post;
-
     return (
       <View style={styles.container}>
         <UserBar onPress={() => this.focusPost()} />
@@ -132,7 +128,6 @@ class Post extends React.Component {
 
 const DisplayTopics = (topics) => {
   if (topics == null || topics?.length <= 0) return;
-  console.log("topics:", topics);
   return (
     <View style={styles.displayTopics}>
       {topics.map((topic, i) => (

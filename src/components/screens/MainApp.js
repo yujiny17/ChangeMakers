@@ -22,12 +22,23 @@ class MainApp extends React.Component {
     const img = <Image source={require("../../../assets/close.png")} />;
     return (
       <MainStack.Navigator>
-        <MainStack.Screen
+        {/* <MainStack.Screen
           name="TopicScreen"
           component={TopicScreen}
           options={{}}
           initialParams={{ topic: "dog" }}
-        />
+        /> */}
+        {/* <MainStack.Screen
+          name="ProfileScreen"
+          component={ProfileScreen}
+          options={{
+            headerShown: true,
+            headerBackTitle: " ",
+          }}
+          initialParams={{ user: { username: "testUser3" } }}
+        /> */}
+
+        {/* REAL SCREENS BELOW, ABOVE FOR TESTING PURPOSES */}
         <MainStack.Screen
           name="NewsFeed"
           component={NewsFeed}
@@ -94,11 +105,11 @@ class MainApp extends React.Component {
             headerShown: true,
           }}
         />
-        {/* <MainStack.Screen
+        <MainStack.Screen
           name="TopicScreen"
           component={TopicScreen}
           options={{}}
-        /> */}
+        />
       </MainStack.Navigator>
     );
   }

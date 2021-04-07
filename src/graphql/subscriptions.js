@@ -232,7 +232,6 @@ export const onDeleteFollowRelationship = /* GraphQL */ `
 export const onCreateTopicFollowRelationship = /* GraphQL */ `
   subscription OnCreateTopicFollowRelationship {
     onCreateTopicFollowRelationship {
-      id
       followerId
       topic
       following
@@ -244,7 +243,6 @@ export const onCreateTopicFollowRelationship = /* GraphQL */ `
 export const onUpdateTopicFollowRelationship = /* GraphQL */ `
   subscription OnUpdateTopicFollowRelationship {
     onUpdateTopicFollowRelationship {
-      id
       followerId
       topic
       following
@@ -256,7 +254,6 @@ export const onUpdateTopicFollowRelationship = /* GraphQL */ `
 export const onDeleteTopicFollowRelationship = /* GraphQL */ `
   subscription OnDeleteTopicFollowRelationship {
     onDeleteTopicFollowRelationship {
-      id
       followerId
       topic
       following

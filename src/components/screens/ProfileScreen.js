@@ -22,6 +22,7 @@ import {
   listFollowRelationshipsbyFollower,
   listPostsBySpecificOwner,
   getFollowRelationship,
+  listTopicFollowRelationships,
 } from "../../graphql/queries";
 import {
   createFollowRelationship,
@@ -33,6 +34,7 @@ import constants from "../../constants/constants";
 import UserResult from "../Search/UserResult";
 import Post from "../Post/Post";
 import ToolBar from "../ToolBar";
+import TopicResult from "../Search/TopicResult";
 import { getToken } from "../../UserCredentials";
 
 class ProfileScreen extends React.Component {
@@ -48,6 +50,8 @@ class ProfileScreen extends React.Component {
       posts: [],
       ownProfile: false,
       followRelationship: null,
+      focus: "posts",
+      topics: [],
     };
   }
 
@@ -87,16 +91,16 @@ class ProfileScreen extends React.Component {
     }
   }
 
-  async trulyFollowing(list) {
+  trulyFollowing(list) {
     let result = [];
-    console.log("checking list", list);
+    // console.log("checking list", list);
     list.forEach((rel) => {
-      console.log("checking rel", rel);
+      // console.log("checking rel", rel);
       if (rel.following) {
         result.push(rel);
       }
     });
-    console.log("result is", result);
+    // console.log("result is", result);
     return result;
   }
 
@@ -166,6 +170,23 @@ class ProfileScreen extends React.Component {
     }
   }
 
+  async getTopics(username) {
+    let list;
+    try {
+      let resp = await API.graphql(
+        graphqlOperation(listTopicFollowRelationships, { followerId: username })
+      );
+      console.log("resp", resp);
+      let possList = resp.data.listTopicFollowRelationships.items;
+      list = this.trulyFollowing(possList);
+      console.log(username, "follows", list);
+      return list;
+    } catch (error) {
+      console.log("error fetching topics", error);
+    }
+    return;
+  }
+
   async componentDidMount() {
     // check if this is current user's profile
     const user = this.props.route.params.user;
@@ -174,9 +195,8 @@ class ProfileScreen extends React.Component {
     let followersList = [];
     let followingList = [];
     let posts = [];
+    let topics = [];
     let followRelationship = null;
-
-    console.log("user profile for", username);
 
     this.props.navigation.setOptions({
       headerTitle: username,
@@ -192,10 +212,12 @@ class ProfileScreen extends React.Component {
     if (relationship != null) {
       followRelationship = relationship;
     }
-    console.log("curr relationship", relationship);
+    // console.log("curr relationship", relationship);
+
     followersList = await this.getFollowers(username);
     followingList = await this.getFollowing(username);
     posts = await this.getPosts(username);
+    topics = await this.getTopics(username);
 
     this.setState({
       currUser: currUser.username,
@@ -206,6 +228,7 @@ class ProfileScreen extends React.Component {
       numFollowers: followersList.length,
       numFollowing: followingList.length,
       posts: posts,
+      topics: topics,
       followRelationship: followRelationship,
     });
   }
@@ -310,6 +333,69 @@ class ProfileScreen extends React.Component {
     }
   }
 
+  _focus(option) {
+    if (option != this.state.focus) {
+      this.setState({ focus: option, results: null });
+    }
+  }
+  _optionBar() {
+    if (this.state.focus == "topics") {
+      return (
+        <View style={styles.optionBar}>
+          <TouchableOpacity
+            style={styles.optionContainer}
+            onPress={() => this._focus("posts")}
+          >
+            <Text style={styles.postsText}>Posts</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.focusedOptionContainer}
+            onPress={() => this._focus("topics")}
+          >
+            <Text style={styles.topicsText}>Topics</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.optionBar}>
+          <TouchableOpacity
+            style={styles.focusedOptionContainer}
+            onPress={() => this._focus("posts")}
+          >
+            <Text style={styles.postsText}>Posts</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.optionContainer}
+            onPress={() => this._focus("topics")}
+          >
+            <Text style={styles.topicsText}>Topics</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  }
+
+  _body() {
+    if (this.state.focus == "posts") {
+      return (
+        <View style={styles.postsContainer}>
+          {this.state.posts.map((post) => (
+            <Post post={post} key={post.id} focusPost={false}></Post>
+          ))}
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.postsContainer}>
+          {this.state.topics.map((topic, i) => (
+            <TopicResult topic={topic} key={i} />
+          ))}
+        </View>
+      );
+    }
+  }
+
   render() {
     const user = this.props.route.params.user;
     let userPhotoExists = false;
@@ -321,6 +407,9 @@ class ProfileScreen extends React.Component {
     if (!this.state.ownProfile) {
       followButton = this._followButton();
     }
+
+    let optionBar = this._optionBar();
+    let body = this._body();
 
     return (
       <View style={styles.container}>
@@ -385,11 +474,8 @@ class ProfileScreen extends React.Component {
               </TouchableOpacity>
             </View>
             {followButton}
-            <View style={styles.postsContainer}>
-              {this.state.posts.map((post) => (
-                <Post post={post} key={post.id} focusPost={false}></Post>
-              ))}
-            </View>
+            {optionBar}
+            {body}
           </ScrollView>
           <ToolBar />
         </View>
@@ -463,11 +549,12 @@ const styles = StyleSheet.create({
     fontSize: 35,
   },
   infoContainer: {
-    height: Dimensions.get("window").height * 0.1,
+    height: Dimensions.get("window").height * 0.06,
     width: Dimensions.get("window").width * 0.7,
     flexDirection: "row",
     justifyContent: "space-evenly",
     // backgroundColor: "yellow",
+    marginBottom: 10,
   },
   followContainer: {
     padding: 10,
@@ -489,7 +576,7 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 0,
+    margin: 10,
     backgroundColor: constants.styleConstants.orange,
   },
   followButtonContainer: {
@@ -499,7 +586,8 @@ const styles = StyleSheet.create({
     height: 50,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 0,
+    margin: 10,
+
     backgroundColor: constants.styleConstants.white,
     borderColor: constants.styleConstants.orange,
     borderWidth: 3,
@@ -511,6 +599,38 @@ const styles = StyleSheet.create({
   followingText: {
     fontSize: 20,
     color: constants.styleConstants.offWhite,
+  },
+
+  optionBar: {
+    height: 40,
+    width: Dimensions.get("window").width,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  optionContainer: {
+    width: Dimensions.get("window").width / 2,
+    flexDirection: "row",
+    justifyContent: "center",
+    borderColor: constants.styleConstants.grey,
+    backgroundColor: constants.styleConstants.white,
+    borderWidth: 3,
+  },
+  focusedOptionContainer: {
+    width: Dimensions.get("window").width / 2,
+    flexDirection: "row",
+    justifyContent: "center",
+    borderColor: constants.styleConstants.orange,
+    backgroundColor: constants.styleConstants.white,
+    borderWidth: 3,
+  },
+
+  topicsText: {
+    padding: 4,
+    fontSize: 15,
+  },
+  postsText: {
+    padding: 4,
+    fontSize: 15,
   },
 
   postsContainer: {

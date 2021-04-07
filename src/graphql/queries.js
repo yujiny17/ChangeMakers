@@ -332,9 +332,8 @@ export const listFollowRelationshipsbyFollower = /* GraphQL */ `
   }
 `;
 export const getTopicFollowRelationship = /* GraphQL */ `
-  query GetTopicFollowRelationship($id: ID!) {
-    getTopicFollowRelationship(id: $id) {
-      id
+  query GetTopicFollowRelationship($followerId: ID!, $topic: ID!) {
+    getTopicFollowRelationship(followerId: $followerId, topic: $topic) {
       followerId
       topic
       following
@@ -345,46 +344,22 @@ export const getTopicFollowRelationship = /* GraphQL */ `
 `;
 export const listTopicFollowRelationships = /* GraphQL */ `
   query ListTopicFollowRelationships(
+    $followerId: ID
+    $topic: ModelIDKeyConditionInput
     $filter: ModelTopicFollowRelationshipFilterInput
     $limit: Int
     $nextToken: String
+    $sortDirection: ModelSortDirection
   ) {
     listTopicFollowRelationships(
-      filter: $filter
-      limit: $limit
-      nextToken: $nextToken
-    ) {
-      items {
-        id
-        followerId
-        topic
-        following
-        createdAt
-        updatedAt
-      }
-      nextToken
-    }
-  }
-`;
-export const listTopicFollowRelationshipsbyFollower = /* GraphQL */ `
-  query ListTopicFollowRelationshipsbyFollower(
-    $followerId: ID
-    $topic: ModelStringKeyConditionInput
-    $sortDirection: ModelSortDirection
-    $filter: ModelTopicFollowRelationshipFilterInput
-    $limit: Int
-    $nextToken: String
-  ) {
-    listTopicFollowRelationshipsbyFollower(
       followerId: $followerId
       topic: $topic
-      sortDirection: $sortDirection
       filter: $filter
       limit: $limit
       nextToken: $nextToken
+      sortDirection: $sortDirection
     ) {
       items {
-        id
         followerId
         topic
         following

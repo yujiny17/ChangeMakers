@@ -289,7 +289,6 @@ export const createTopicFollowRelationship = /* GraphQL */ `
     $condition: ModelTopicFollowRelationshipConditionInput
   ) {
     createTopicFollowRelationship(input: $input, condition: $condition) {
-      id
       followerId
       topic
       following
@@ -304,7 +303,6 @@ export const updateTopicFollowRelationship = /* GraphQL */ `
     $condition: ModelTopicFollowRelationshipConditionInput
   ) {
     updateTopicFollowRelationship(input: $input, condition: $condition) {
-      id
       followerId
       topic
       following
@@ -319,7 +317,6 @@ export const deleteTopicFollowRelationship = /* GraphQL */ `
     $condition: ModelTopicFollowRelationshipConditionInput
   ) {
     deleteTopicFollowRelationship(input: $input, condition: $condition) {
-      id
       followerId
       topic
       following
