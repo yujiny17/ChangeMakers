@@ -25,7 +25,7 @@ class PostFocus extends React.Component {
         <View style={styles.postFocusContainer}>
           <Post post={post} id={post.id} focusPost={true} />
         </View>
-        <ToolBar />
+        {/* <ToolBar /> */}
       </View>
     );
   }

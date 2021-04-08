@@ -6,18 +6,25 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { API, graphqlOperation } from "aws-amplify";
+import { S3Image } from "aws-amplify-react-native";
 
-import { getUserPostActivity } from "../../graphql/queries";
+import {
+  getUserPostActivity,
+  listCommentsbyPost,
+  getUser,
+} from "../../graphql/queries";
 import {
   createUserPostActivity,
   updatePost,
   updateUserPostActivity,
+  createComment,
 } from "../../graphql/mutations";
 import { getToken } from "../../UserCredentials";
 
@@ -33,14 +40,17 @@ class PostActivityBar extends React.Component {
         post: [],
         publicMisinformation: false,
         userMisinformation: false, //user decision
-        misinformationModalVisible: false,
+        username: null,
+        comments: [],
+        commentUsers: [],
+        commentInputHeight: 40,
+        userComment: "",
       };
     }
+    this.commentRef = React.createRef();
   }
 
-  async loadUserActivity() {
-    let user = await getToken();
-    let username = user.username;
+  async loadUserActivity(username) {
     let post = this.props.post;
     // console.log("get activity for user and post", username, post.id);
 
@@ -205,13 +215,62 @@ class PostActivityBar extends React.Component {
     }
   }
 
+  async _getComments(postId) {
+    let comments = [];
+    try {
+      const resp = await API.graphql(
+        graphqlOperation(listCommentsbyPost, {
+          postId: postId,
+          sortDirection: "DESC",
+        })
+      );
+      comments = resp.data.listCommentsbyPost.items;
+      // console.log("got comments", comments);
+      return comments;
+    } catch (error) {
+      console.log("list comments error", error);
+    }
+  }
+
   async componentDidMount() {
     let stateActivity = [];
     let statePost = [];
     let publicMisinformation = false;
     let userMisinformation = false;
+    let username = "";
+    let comments = [];
+    let commentUsers = [];
 
-    let activity = await this.loadUserActivity();
+    let user = await getToken();
+    username = user.username;
+
+    // FOR TESTING PURPOSES
+    // this.setState({
+    //   loadingActivity: false,
+    //   user: {
+    //     username: "testUser3",
+    //   },
+    //   comments: [
+    //     {
+    //       createdAt: "2021-04-08T02:39:37.080Z",
+    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
+    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       text:
+    //         "I also love animals very much and would like to play with a few someday!",
+    //       updatedAt: "2021-04-08T02:39:37.080Z",
+    //       user: "testuser3",
+    //       username: "testUser3",
+    //     },
+    //   ],
+    //   commentUsers: [
+    //     {
+    //       username: "testUser3",
+    //     },
+    //   ],
+    // });
+    // return;
+
+    let activity = await this.loadUserActivity(username);
     let post = this.props.post;
 
     // retrieved activity has extra fields _version, _deleted, _lastChangedAt
@@ -242,15 +301,26 @@ class PostActivityBar extends React.Component {
       publicMisinformation = true;
     }
 
+    comments = await this._getComments(post.id);
+    commentUsers = await this._getUsersofComments(comments);
+
     this.setState({
       loadingActivity: false,
       activity: stateActivity,
       post: statePost,
       publicMisinformation: publicMisinformation,
       userMisinformation: userMisinformation,
+      username: username,
+      comments: comments,
+      commentUsers: commentUsers,
     });
 
     // console.log("Mounted and state is now", this.state);
+
+    // focus comment text component
+    if (this.commentRef != null) {
+      this.commentRef?.current.focus();
+    }
   }
 
   async _pressMisinformation() {
@@ -278,7 +348,7 @@ class PostActivityBar extends React.Component {
 
     // check if still marked as misinfo
     let boundary = Math.ceil((post.upvote + post.downvote) / 4);
-    console.log("boundary", boundary, "and score", post.misinformation);
+    // console.log("boundary", boundary, "and score", post.misinformation);
     if (post.misinformation > boundary) {
       publicMisinformation = true;
     } else {
@@ -423,11 +493,217 @@ class PostActivityBar extends React.Component {
     }
   }
 
+  _commentButton() {
+    if (this.props.focused) {
+      return (
+        <Icon
+          name="comment"
+          type="evilicon"
+          size={constants.styleConstants.iconSize}
+          color={constants.styleConstants.black}
+          containerStyle={{ flex: 1 }}
+          // onPress={() => this.props.focusPost()}
+
+          // on press bring comment bar into focus
+        />
+      );
+    } else {
+      return (
+        <Icon
+          name="comment"
+          type="evilicon"
+          size={constants.styleConstants.iconSize}
+          color={constants.styleConstants.black}
+          containerStyle={{ flex: 1 }}
+          onPress={() => this.props.focusPost()}
+        />
+      );
+    }
+  }
+
+  updateSize(height) {
+    this.setState({ commentInputHeight: height });
+  }
+
+  async submitComment() {
+    this.commentRef.current.blur();
+    try {
+      const input = {
+        username: this.state.username,
+        postId: this.state.post.id,
+        text: this.state.userComment,
+      };
+      const resp = await API.graphql(
+        graphqlOperation(createComment, { input: input })
+      );
+      comment = resp.data.createComment;
+      console.log("created comment", comment);
+    } catch (error) {
+      console.log("Create comment error", error);
+    }
+    let comments = this.state.comments;
+    comments.push(comment);
+    this.setState({ comments: comments });
+  }
+
+  async _getUsersofComments(comments) {
+    let users = [];
+    try {
+      await Promise.all(
+        comments.map(async (comment) => {
+          let resp = await API.graphql(
+            graphqlOperation(getUser, { username: comment.username })
+          );
+          let user = resp.data.getUser;
+          users.push(user);
+        })
+      );
+    } catch (error) {
+      console.log("error getting comment users", error);
+    }
+    return users;
+  }
+
+  _displayComments() {
+    let comments = this.state.comments;
+    if (comments == null || comments?.length <= 0 || !this.props.focused)
+      return;
+    let users = this.state.commentUsers;
+    // console.log("users of comments are", users);
+
+    return (
+      <View
+        style={{
+          width: 100 + "%",
+          flexDirection: "column",
+          justifyContent: "flex-start",
+        }}
+      >
+        {comments.map((comment, i) => (
+          <TouchableOpacity
+            style={{
+              width: 100 + "%",
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              alignItems: "flex-start",
+              paddingVertical: 5,
+            }}
+            onPress={() =>
+              this.props.navigation.navigate("ProfileScreen", {
+                user: users[i],
+              })
+            }
+            activeOpacity={0.8}
+            key={i}
+          >
+            <View style={styles.userPhotoContainer}>
+              {users[i].photo ? (
+                <S3Image imgKey={users[i].photo} style={styles.userPhoto} />
+              ) : (
+                <Icon
+                  name="account-circle"
+                  type="material-community"
+                  color="black"
+                  size={40}
+                />
+              )}
+              {/* <Icon
+                name="account-circle"
+                type="material-community"
+                color="black"
+                size={40}
+              /> */}
+            </View>
+            <View
+              style={{
+                height: 100 + "%",
+                width: Dimensions.get("window").width - 50,
+                flexDirection: "column",
+                justifyContent: "flex-start",
+                paddingHorizontal: 10,
+              }}
+            >
+              <View style={styles.userNameContainer}>
+                <Text style={styles.userName}>{users[i].username}</Text>
+              </View>
+              <Text style={{ fontSize: 20 }}>{comment.text}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  }
+
+  _commentBar() {
+    if (this.props.focused) {
+      return (
+        <TouchableOpacity style={styles.commentBar} activeOpacity={1.0}>
+          <View style={styles.userPhoto}>
+            {/* {userPhotoExists ? (
+            <S3Image imgKey={this.state.user.photo} style={styles.userPhoto} />
+          ) : (
+            <Icon
+              name="account-circle"
+              type="material-community"
+              color="black"
+              size={40}
+            />
+          )} */}
+            <Icon
+              name="account-circle"
+              type="material-community"
+              color="black"
+              size={40}
+            />
+          </View>
+
+          <View
+            style={{
+              width: Dimensions.get("window").width * 0.8,
+              flexDirection: "row",
+              justifyContent: "flex-start",
+              alignItems: "flex-start",
+            }}
+          >
+            <TextInput
+              ref={this.commentRef}
+              placeholder={"Add a comment"}
+              placeholderTextColor="#808080"
+              backgroundColor={"#F7F7F7"}
+              onChangeText={(input) => this.setState({ userComment: input })}
+              spellCheck={false}
+              autoCapitalize={"none"}
+              autoCompleteType={"off"}
+              multiline={true}
+              textAlignVertical={"top"}
+              maxLength={50000}
+              scrollEnabled={true}
+              // numberOfLines={1}
+              onContentSizeChange={(e) =>
+                this.updateSize(e.nativeEvent.contentSize.height)
+              }
+              onSubmitEditing={(e) => this.submitComment(e.text)}
+              style={{
+                flex: 1,
+                width: Dimensions.get("window").width * 0.7,
+                color: constants.styleConstants.black,
+                fontSize: 20,
+                height: Math.max(40, this.state.commentInputHeight),
+              }}
+            />
+          </View>
+        </TouchableOpacity>
+      );
+    }
+  }
   render() {
     const post = this.props.post;
     let userMisinformation = this._userMisinformation();
     let publicMisinformation = this._publicMisinformation();
     let misinformationButton = this._misinformationButton();
+    let commentButton = this._commentButton();
+    let comments = this._displayComments();
+    let commentBar = this._commentBar();
     // if loading return generic user bar with no actions
     if (this.state.loadingActivity) {
       return null;
@@ -513,27 +789,21 @@ class PostActivityBar extends React.Component {
                 />
               )}
             </View>
-            <Icon
-              name="comment"
-              type="evilicon"
-              size={constants.styleConstants.iconSize}
-              color={constants.styleConstants.black}
-              containerStyle={{ flex: 1 }}
-            />
+            {commentButton}
             {misinformationButton}
           </View>
+          {comments}
+          {commentBar}
         </View>
       );
     }
   }
 }
 
-export default PostActivityBar;
-
-// export default function (props) {
-//   const navigation = useNavigation();
-//   return <Post {...props} navigation={navigation} />;
-// }
+export default function (props) {
+  const navigation = useNavigation();
+  return <PostActivityBar {...props} navigation={navigation} />;
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -557,11 +827,14 @@ const styles = StyleSheet.create({
   iconBar: {
     height: constants.styleConstants.rowHeight,
     width: 100 + "%",
-    // paddingVertical: 5,
-    paddingHorizontal: 15,
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+    marginTop: 5,
+    paddingHorizontal: 15,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderColor: "black",
   },
   voteContainer: {
     flex: 1,
@@ -596,5 +869,43 @@ const styles = StyleSheet.create({
   markedMisText: {
     fontSize: 12,
     color: "red",
+  },
+
+  ////////
+  userPhotoContainer: {
+    // flexDirection: "row",
+    paddingHorizontal: 5,
+  },
+  userNameContainer: {
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+  userName: {
+    fontWeight: "500",
+  },
+  ////////
+
+  commentBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginVertical: 5,
+    paddingVertical: 5,
+    paddingLeft: 10,
+    paddingRight: 15,
+  },
+
+  userPhoto: {
+    height: 40,
+    width: 40,
+    borderRadius: 20,
+  },
+  commentContainer: {
+    width: Dimensions.get("window").width * 0.8,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 5,
   },
 });

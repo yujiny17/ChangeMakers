@@ -264,6 +264,69 @@ export const listPostsByPopularity = /* GraphQL */ `
     }
   }
 `;
+export const getComment = /* GraphQL */ `
+  query GetComment($id: ID!) {
+    getComment(id: $id) {
+      id
+      postId
+      createdAt
+      username
+      text
+      updatedAt
+      user
+    }
+  }
+`;
+export const listComments = /* GraphQL */ `
+  query ListComments(
+    $filter: ModelCommentFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listComments(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        postId
+        createdAt
+        username
+        text
+        updatedAt
+        user
+      }
+      nextToken
+    }
+  }
+`;
+export const listCommentsbyPost = /* GraphQL */ `
+  query ListCommentsbyPost(
+    $postId: ID
+    $createdAt: ModelStringKeyConditionInput
+    $sortDirection: ModelSortDirection
+    $filter: ModelCommentFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listCommentsbyPost(
+      postId: $postId
+      createdAt: $createdAt
+      sortDirection: $sortDirection
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+    ) {
+      items {
+        id
+        postId
+        createdAt
+        username
+        text
+        updatedAt
+        user
+      }
+      nextToken
+    }
+  }
+`;
 export const getFollowRelationship = /* GraphQL */ `
   query GetFollowRelationship($followeeId: ID!, $followerId: ID!) {
     getFollowRelationship(followeeId: $followeeId, followerId: $followerId) {

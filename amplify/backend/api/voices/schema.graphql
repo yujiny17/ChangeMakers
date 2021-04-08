@@ -46,6 +46,30 @@ type Photo @model {
   type: String
 }
 
+type Comment
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "user"
+        operations: [read, create, update, delete]
+      }
+      { allow: private, operations: [read] }
+    ]
+  )
+  @key(
+    name: "ByPost"
+    fields: ["postId", "createdAt"]
+    queryField: "listCommentsbyPost"
+  ) {
+  id: ID
+  postId: ID!
+  createdAt: String
+  username: ID!
+  text: String!
+}
+
 type FollowRelationship
   @model
   @auth(

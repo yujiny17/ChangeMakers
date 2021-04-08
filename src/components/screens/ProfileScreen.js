@@ -56,23 +56,6 @@ class ProfileScreen extends React.Component {
   }
 
   async getRelationship(currUser, profileUser) {
-    // try {
-    //   let input = { username: currUser };
-    //   console.log("about to delete currUser");
-    //   let resp = await API.graphql(
-    //     graphqlOperation(deleteUser, {
-    //       input: input,
-    //     })
-    //   );
-    //   console.log("resp", resp);
-    //   let user = resp.data.deleteUser;
-    //   console.log("response", relationship);
-    //   return relationship;
-    // } catch (error) {
-    //   console.log("error deleting currUser", error);
-    //   return null;
-    // }
-
     // see if current user is following the profile user
     try {
       let resp = await API.graphql(
@@ -207,6 +190,33 @@ class ProfileScreen extends React.Component {
       ownProfile = true;
     }
 
+    // for testing purposes
+    followersList = [
+      {
+        createdAt: "2021-04-07T00:46:50.160Z",
+        followeeId: "testUser3",
+        followerId: "testUser2",
+        following: true,
+        updatedAt: "2021-04-07T00:49:45.398Z",
+      },
+    ];
+    followingList = [
+      {
+        createdAt: "2021-04-06T12:56:42.723Z",
+        followeeId: "testUser",
+        followerId: "testUser3",
+        following: true,
+        updatedAt: "2021-04-06T13:04:00.889Z",
+      },
+    ];
+    this.setState({
+      followers: followersList,
+      following: followingList,
+      numFollowers: followersList.length,
+      numFollowing: followingList.length,
+    });
+    return;
+
     let relationship = await this.getRelationship(currUser.username, username);
 
     if (relationship != null) {
@@ -231,6 +241,8 @@ class ProfileScreen extends React.Component {
       topics: topics,
       followRelationship: followRelationship,
     });
+
+    console.log(this.state);
   }
 
   async follow(toggleFollow) {
@@ -418,7 +430,7 @@ class ProfileScreen extends React.Component {
             <View style={styles.userPhotoName}>
               <View style={styles.userPhotoName2}>
                 <View style={styles.userPhotoContainer}>
-                  {/* {userPhotoExists ? (
+                  {userPhotoExists ? (
                     <S3Image imgKey={user.photo} style={styles.userPhoto} />
                   ) : (
                     <Icon
@@ -427,13 +439,13 @@ class ProfileScreen extends React.Component {
                       color="black"
                       size={100}
                     />
-                  )} */}
-                  <Icon
+                  )}
+                  {/* <Icon
                     name="account-circle"
                     type="material-community"
                     color="black"
                     size={100}
-                  />
+                  /> */}
                 </View>
                 <View style={styles.userNameContainer}>
                   <Text style={styles.userName}>{user.username}</Text>
@@ -467,9 +479,9 @@ class ProfileScreen extends React.Component {
                   })
                 }
               >
-                <TouchableOpacity style={styles.followContainer2}>
+                <View style={styles.followContainer2}>
                   <Text style={styles.numText}>{this.state.numFollowing}</Text>
-                </TouchableOpacity>
+                </View>
                 <Text style={styles.followerText}>Following</Text>
               </TouchableOpacity>
             </View>
@@ -517,7 +529,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   userPhotoName: {
-    height: Dimensions.get("window").height * 0.2,
+    height: Dimensions.get("window").height * 0.18,
     width: Dimensions.get("window").width,
     flexDirection: "column",
     justifyContent: "center",

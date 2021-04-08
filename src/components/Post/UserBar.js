@@ -60,6 +60,7 @@ class UserBar extends React.Component {
           />
           <View style={styles.userNameContainer}>
             <Text style={styles.userName}>Yujin</Text>
+            {/* <Text style={styles.userName}>{user.username}</Text> */}
           </View>
         </View>
 

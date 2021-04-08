@@ -10,7 +10,7 @@ const TopicResult = (props) => {
   const navigation = useNavigation();
   const topic = props.topic.topic;
 
-  // pressing will lead to TopicScreen with topic (just the name) in props
+  // pressing will lead to TopicScreen with topic (just the name) in r
   return (
     <TouchableOpacity
       style={styles.topicBar}
@@ -32,15 +32,24 @@ const styles = StyleSheet.create({
     width: 100 + "%",
     flexDirection: "row",
     justifyContent: "flex-start",
-    paddingHorizontal: 5,
+    paddingHorizontal: 10,
   },
   topicContainer: {
     flexDirection: "column",
     justifyContent: "center",
+    marginVertical: 5,
+    paddingHorizontal: 15,
+    backgroundColor: constants.styleConstants.orange,
+    borderColor: constants.styleConstants.orange,
+    borderWidth: 1,
+    borderRadius: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   topicName: {
-    marginLeft: 10,
     fontWeight: "500",
     fontSize: 20,
+    color: constants.styleConstants.white,
   },
 });

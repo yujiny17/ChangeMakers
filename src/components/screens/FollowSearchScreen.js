@@ -15,7 +15,7 @@ import { API, graphqlOperation } from "aws-amplify";
 import { S3Image } from "aws-amplify-react-native";
 import Storage from "@aws-amplify/storage";
 
-import { getPhoto, listUsers } from "../../graphql/queries";
+import { getUser } from "../../graphql/queries";
 
 import constants from "../../constants/constants";
 import UserResult from "../Search/UserResult";
@@ -24,9 +24,9 @@ class FollowSearchScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      focus: "",
-      followers: null,
-      following: null,
+      focus: "followers",
+      followers: [],
+      following: [],
       results: null,
     };
   }
@@ -58,7 +58,121 @@ class FollowSearchScreen extends React.Component {
     return;
   }
 
+  async _getFollowersfromRelationships(list) {
+    let followers = [];
+    await Promise.all(
+      list.map(async (item) => {
+        // console.log("relationship", item);
+        let resp = await API.graphql(
+          graphqlOperation(getUser, { username: item.followerId })
+        );
+        followers.push(resp.data.getUser);
+      })
+    );
+    return followers;
+  }
+
+  async _getFollowingfromRelationships(list) {
+    let followers = [];
+    await Promise.all(
+      list.map(async (item) => {
+        // console.log("relationship", item);
+        let resp = await API.graphql(
+          graphqlOperation(getUser, { username: item.followeeId })
+        );
+        followers.push(resp.data.getUser);
+      })
+    );
+    return followers;
+  }
+
+  async componentDidMount() {
+    const focus = this.props.route.params.focus;
+    let followers = [];
+    let following = [];
+    let results = [];
+
+    const followerRelationships = this.props.route.params.followers;
+    const followingRelationships = this.props.route.params.following;
+
+    // console.log("dsjflsdkfjds", followerRelationships, followingRelationships);
+    followers = await this._getFollowersfromRelationships(
+      followerRelationships
+    );
+    following = await this._getFollowingfromRelationships(
+      followingRelationships
+    );
+
+    // console.log("followers", followers);
+    // console.log("following", following);
+
+    if (focus == "followers") {
+      results = followers;
+    } else {
+      results = following;
+    }
+    this.setState({
+      focus: focus,
+      followers: followers,
+      following: following,
+      results: results,
+    });
+    // console.log(this.props);
+  }
+
+  _focus(option) {
+    if (option != this.state.focus) {
+      if (option == "followers") {
+        this.setState({ focus: option, results: this.state.followers });
+      } else {
+        this.setState({ focus: option, results: this.state.following });
+      }
+    }
+  }
+
+  _optionBar() {
+    if (this.state.focus == "followers") {
+      return (
+        <View style={styles.optionBar}>
+          <TouchableOpacity
+            style={styles.focusedOptionContainer}
+            onPress={() => this._focus("followers")}
+          >
+            <Text style={styles.topicsText}>Followers</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.optionContainer}
+            onPress={() => this._focus("following")}
+          >
+            <Text style={styles.usersText}>Following</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      return (
+        <View style={styles.optionBar}>
+          <TouchableOpacity
+            style={styles.optionContainer}
+            onPress={() => this._focus("followers")}
+          >
+            <Text style={styles.topicsText}>Followers</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.focusedOptionContainer}
+            onPress={() => this._focus("following")}
+          >
+            <Text style={styles.usersText}>Following</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+  }
+
   _body() {
+    // console.log("results", this.state.results);
+    // if just switched, no applicable results will have been
+    // loaded yet
+    if (this.state.results == null) return;
     return (
       <ScrollView style={styles.bodyContainer}>
         {this.state.results.map((user, i) => (
@@ -68,33 +182,13 @@ class FollowSearchScreen extends React.Component {
     );
   }
 
-  componentDidMount() {
-    const focus = this.props.route.params.focus;
-    const followers = this.props.route.params.followers;
-    const following = this.props.route.params.following;
-    let results;
-    if (focus == "followers") {
-      results = followers;
-    } else {
-      results = following;
-    }
-    this.setState({
-      focus: results,
-      followers: followers,
-      following: following,
-      results: results,
-    });
-    console.log(this.state);
-  }
-
   render() {
-    let body;
     // let focus = this.props.route.params.focus;
     // let followers = this.props.route.params.followers;
     // let following = this.props.route.params.following;
-    if (this.state.results != null) {
-      body = this._body();
-    }
+
+    let optionBar = this._optionBar();
+    let body = this._body();
 
     return (
       <View style={styles.container}>
@@ -137,18 +231,7 @@ class FollowSearchScreen extends React.Component {
             </View>
           </View>
         </View>
-        <View style={styles.focusTextContainer}>
-          <TouchableOpacity style={styles.followersTextContainer}>
-            <View style={styles.followersTextContainer2}>
-              <Text style={{ textAlign: "center" }}>Followers</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.followingTextContainer}>
-            <View style={styles.followersTextContainer2}>
-              <Text style={{ textAlign: "center" }}>Following</Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+        {optionBar}
         {body}
       </View>
     );
@@ -229,12 +312,42 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
+  optionBar: {
+    height: 50,
+    width: Dimensions.get("window").width,
+    flexDirection: "row",
+    justifyContent: "center",
+  },
+  optionContainer: {
+    width: Dimensions.get("window").width / 2,
+    flexDirection: "row",
+    justifyContent: "center",
+    borderColor: constants.styleConstants.grey,
+    backgroundColor: constants.styleConstants.white,
+    borderWidth: 3,
+  },
+  focusedOptionContainer: {
+    width: Dimensions.get("window").width / 2,
+    flexDirection: "row",
+    justifyContent: "center",
+    borderColor: constants.styleConstants.orange,
+    backgroundColor: constants.styleConstants.white,
+    borderWidth: 3,
+  },
+  topicsText: {
+    padding: 8,
+    fontSize: 20,
+  },
+  usersText: {
+    padding: 8,
+    fontSize: 20,
+  },
+
   bodyContainer: {
     flex: 1,
     height: 100 + "%",
     width: 100 + "%",
     padding: 5,
-    backgroundColor: "yellow",
   },
   focusTextContainer: {
     // flex: 1,

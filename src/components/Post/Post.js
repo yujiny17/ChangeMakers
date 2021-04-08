@@ -49,11 +49,6 @@ class Post extends React.Component {
         })
       );
       activity = resp.data.getUserPostActivity;
-      console.log(
-        "loaded user activity for (user, post)",
-        "(" + username + ",",
-        post.id + ")"
-      );
       // console.log("user activity is", activity);
     } catch (error) {
       console.log("Get user post activity error", error);
@@ -120,7 +115,12 @@ class Post extends React.Component {
           {DisplayPhotos(post.photos)}
         </TouchableOpacity>
         {DisplayTopics(post.topics)}
-        <PostActivityBar post={post} focusPost={() => this.focusPost()} />
+        <PostActivityBar
+          post={post}
+          focusPost={() => this.focusPost()}
+          focused={this.props.focusPost}
+          navigation={this.props.navgiation}
+        />
       </View>
     );
   }

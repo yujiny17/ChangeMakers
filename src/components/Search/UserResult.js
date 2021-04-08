@@ -33,6 +33,7 @@ const UserResult = (props) => {
   let userPhotoExists = false;
   if (user.photo != null) userPhotoExists = true;
   // console.log("user photo", user.photo);
+  console.log("user result for", user);
   return (
     <TouchableOpacity
       style={styles.userBar}

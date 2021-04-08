@@ -79,27 +79,30 @@ class NewsFeedBody extends React.Component {
     let posts = [];
     let globalPosts = [];
 
-    // posts = await this.getPosts(username);
-    // globalPosts = await this.getGlobalPosts();
-    posts = [
-      {
-        post: {
-          createdAt: "2021-04-07T06:05:30.913Z",
-          downvote: 0,
-          id: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-          misinformation: 0,
-          photos: [],
-          text: "",
-          title: "I love animals",
-          topics: ["dog", "cat"],
-          totalvote: 0,
-          type: "post",
-          updatedAt: "2021-04-07T18:48:02.818Z",
-          upvote: 0,
-          username: "testUser3",
-        },
-      },
-    ];
+    // for testing purposes
+    // posts = [
+    //   {
+    //     post: {
+    //       createdAt: "2021-04-07T06:05:30.913Z",
+    //       downvote: 0,
+    //       id: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       misinformation: 0,
+    //       photos: [],
+    //       text: "",
+    //       title: "I love animals",
+    //       text: "My favorites are dogs",
+    //       topics: ["dog", "cat"],
+    //       totalvote: 0,
+    //       type: "post",
+    //       updatedAt: "2021-04-07T18:48:02.818Z",
+    //       upvote: 0,
+    //       username: "testUser3",
+    //     },
+    //   },
+    // ];
+
+    posts = await this.getPosts(username);
+    globalPosts = await this.getGlobalPosts();
 
     this.setState({ posts: posts, globalPosts: globalPosts, loading: false });
   }
@@ -158,7 +161,6 @@ class NewsFeedBody extends React.Component {
     }
   }
   _renderPost({ item }) {
-    console.log("rendering item", item);
     let post = item.post;
     return <Post post={post} key={post.id} focusPost={false}></Post>;
   }
