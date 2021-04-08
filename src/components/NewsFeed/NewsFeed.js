@@ -13,14 +13,10 @@ import { connect } from "react-redux";
 import { fetchPosts } from "../../actions/NewsFeed";
 
 class NewsFeed extends React.Component {
-  // componentDidMount() {
-  // this.props.navigation.navigate("SearchScreen");
-  // }
   render() {
     return (
       <View style={styles.container}>
         <AppStatusBar />
-        <NewsFeedHeader />
         <NewsFeedBody />
         <ToolBar />
       </View>

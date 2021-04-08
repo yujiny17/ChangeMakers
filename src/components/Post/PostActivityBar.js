@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import {
+  Dimensions,
+  Image,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
@@ -23,6 +31,9 @@ class PostActivityBar extends React.Component {
         loadingActivity: true,
         activity: [],
         post: [],
+        publicMisinformation: false,
+        userMisinformation: false, //user decision
+        misinformationModalVisible: false,
       };
     }
   }
@@ -78,6 +89,7 @@ class PostActivityBar extends React.Component {
     else {
       return downvote - upvote;
     }
+    // return post.upvote - post.downvote;
   }
   async _pressUpvote(toggle) {
     console.log("Making upvote", toggle);
@@ -194,83 +206,273 @@ class PostActivityBar extends React.Component {
   }
 
   async componentDidMount() {
+    let stateActivity = [];
+    let statePost = [];
+    let publicMisinformation = false;
+    let userMisinformation = false;
+
     let activity = await this.loadUserActivity();
+    let post = this.props.post;
 
     // retrieved activity has extra fields _version, _deleted, _lastChangedAt
-    let stateActivity = {
+    stateActivity = {
       username: activity.username,
       postId: activity.postId,
       upvote: activity.upvote,
       downvote: activity.downvote,
       misinformation: activity.misinformation,
     };
-    let post = this.props.post;
-    let statePost = {
-      id: post.id,
-      username: post.username,
-      upvote: post.upvote,
-      downvote: post.downvote,
-      totalvote: post.totalvote,
-      misinformation: post.misinformation,
-    };
+    (userMisinformation = stateActivity.misinformation),
+      (statePost = {
+        id: post.id,
+        username: post.username,
+        upvote: post.upvote,
+        downvote: post.downvote,
+        totalvote: post.totalvote,
+        misinformation: post.misinformation,
+      });
+
+    // fix negative upvotes downvotes or misinformation
+    if (statePost.upvote < 0) statePost.upvote = 0;
+    if (statePost.downvote < 0) statePost.downvote = 0;
+    if (statePost.misinformation < 0) statePost.misinformation = 0;
+
+    let boundary = Math.ceil((statePost.upvote + statePost.downvote) / 4);
+    if (statePost.misinformation > boundary) {
+      publicMisinformation = true;
+    }
+
     this.setState({
       loadingActivity: false,
       activity: stateActivity,
       post: statePost,
+      publicMisinformation: publicMisinformation,
+      userMisinformation: userMisinformation,
     });
+
+    // console.log("Mounted and state is now", this.state);
   }
 
-  render() {
-    const post = this.props.post;
-    // if loading return generic user bar with no actions
-    if (this.state.loadingActivity) {
-      return (
-        <View activeOpacity={1.0} style={styles.container}>
-          <View style={styles.iconBar}>
-            <View style={styles.voteContainer}>
-              <Icon
-                name="arrow-up-outline"
-                type="ionicon"
-                size={25}
-                color={constants.styleConstants.black}
-              />
-              <View
-                style={{
-                  height: 100 + "%",
-                  justifyContent: "center",
-                  marginHorizontal: 5,
-                }}
-              ></View>
-              <Icon
-                name="arrow-down-outline"
-                type="ionicon"
-                size={25}
-                color={constants.styleConstants.black}
-              />
-            </View>
+  async _pressMisinformation() {
+    // console.log("prev state", this.state);
+
+    // if not set, set misinformation
+    let activity = this.state.activity;
+    let post = this.state.post;
+    let publicMisinformation = this.state.publicMisinformation;
+    let userMisinformation = this.state.userMisinformation;
+
+    if (!userMisinformation) {
+      activity.misinformation = true;
+      post.misinformation += 1;
+      userMisinformation = true;
+    }
+    // set as not misinformation
+    else {
+      activity.misinformation = false;
+      userMisinformation = false;
+      if (post.misinformation > 0) {
+        post.misinformation -= 1;
+      }
+    }
+
+    // check if still marked as misinfo
+    let boundary = Math.ceil((post.upvote + post.downvote) / 4);
+    console.log("boundary", boundary, "and score", post.misinformation);
+    if (post.misinformation > boundary) {
+      publicMisinformation = true;
+    } else {
+      publicMisinformation = false;
+    }
+
+    this.setState({
+      activity: activity,
+      post: post,
+      userMisinformation: userMisinformation,
+      publicMisinformation: publicMisinformation,
+    });
+
+    // change user activity DDB entry
+    try {
+      const resp = await API.graphql(
+        graphqlOperation(updateUserPostActivity, { input: activity })
+      );
+      let updatedActivity = resp.data.updateUserPostActivity;
+      console.log("updated user post activity");
+      // console.log("updated user post activity to", updatedActivity);
+    } catch (error) {
+      console.log("Update user post activity error", error);
+    }
+
+    // update post misinformation count
+    try {
+      const resp = await API.graphql(
+        graphqlOperation(updatePost, { input: post })
+      );
+      let updatedPost = resp.data.updatePost;
+      console.log("updated post to", updatedPost);
+    } catch (error) {
+      console.log("Update post error", error);
+    }
+  }
+
+  _publicMisinformation() {
+    if (this.state.publicMisinformation) {
+      if (this.state.post.misinformation > 1) {
+        return (
+          <View style={styles.publicMis}>
             <Icon
-              name="comment"
+              name="exclamation"
               type="evilicon"
-              size={constants.styleConstants.iconSize}
-              color={constants.styleConstants.black}
-              containerStyle={{ flex: 1 }}
+              size={20}
+              color="red"
+              containerStyle={{}}
             />
+            <Text style={styles.publicMisText}>
+              This post has been marked by {this.state.post.misinformation}{" "}
+              users as misinformation
+            </Text>
+          </View>
+        );
+      } else {
+        return (
+          <View style={styles.publicMis}>
+            <Icon
+              name="exclamation"
+              type="evilicon"
+              size={20}
+              color="red"
+              containerStyle={{}}
+            />
+            <Text style={styles.publicMisText}>
+              This post has been marked by {this.state.post.misinformation} user
+              as misinformation.
+            </Text>
+          </View>
+        );
+      }
+    }
+  }
+
+  _userMisinformation() {
+    if (this.state.userMisinformation) {
+      return (
+        <View style={styles.publicMis}>
+          <Icon
+            name="exclamation"
+            type="evilicon"
+            size={20}
+            color="red"
+            containerStyle={{}}
+          />
+          <Text style={styles.publicMisText}>
+            You have marked this post as misinformation
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  }
+
+  _misinformationButton() {
+    if (this.state.userMisinformation) {
+      return (
+        <View
+          style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}
+        >
+          <Pressable
+            style={[styles.button, styles.buttonOpen]}
+            onPress={() => this._pressMisinformation()}
+          >
             <Icon
               name="exclamation"
               type="evilicon"
               size={constants.styleConstants.iconSize}
-              // color={constants.styleConstants.black}
               color="red"
-              containerStyle={{ flex: 1 }}
+              containerStyle={{}}
             />
-          </View>
+          </Pressable>
         </View>
       );
+    } else {
+      return (
+        <View
+          style={{
+            flex: 1,
+            height: 100 + "%",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Pressable
+            // style={[styles.button, styles.buttonOpen]}
+            style={styles.misinformationContainer}
+            onPress={() => this._pressMisinformation()}
+          >
+            <Icon
+              name="exclamation"
+              type="evilicon"
+              size={constants.styleConstants.iconSize}
+              color="grey"
+              containerStyle={{}}
+            />
+          </Pressable>
+        </View>
+      );
+    }
+  }
+
+  render() {
+    const post = this.props.post;
+    let userMisinformation = this._userMisinformation();
+    let publicMisinformation = this._publicMisinformation();
+    let misinformationButton = this._misinformationButton();
+    // if loading return generic user bar with no actions
+    if (this.state.loadingActivity) {
+      return null;
+      // return (
+      //   <View style={styles.container}>
+      //     {publicMisinformation}
+      //     <View style={styles.iconBar}>
+      //       <View style={styles.voteContainer}>
+      //         <Icon
+      //           name="arrow-up-outline"
+      //           type="ionicon"
+      //           size={25}
+      //           color={constants.styleConstants.black}
+      //         />
+      //         <View
+      //           style={{
+      //             height: 100 + "%",
+      //             justifyContent: "center",
+      //             marginHorizontal: 5,
+      //           }}
+      //         ></View>
+      //         <Icon
+      //           name="arrow-down-outline"
+      //           type="ionicon"
+      //           size={25}
+      //           color={constants.styleConstants.black}
+      //         />
+      //       </View>
+      //       <Icon
+      //         name="comment"
+      //         type="evilicon"
+      //         size={constants.styleConstants.iconSize}
+      //         color={constants.styleConstants.black}
+      //         containerStyle={{ flex: 1 }}
+      //       />
+      //     </View>
+      //   </View>
+      // );
     }
     // once user activity has loaded
     else {
       return (
         <View style={styles.container}>
+          {publicMisinformation}
+          {userMisinformation}
           <View style={styles.iconBar}>
             <View style={styles.voteContainer}>
               {this.state.activity.upvote ? (
@@ -291,14 +493,14 @@ class PostActivityBar extends React.Component {
                 />
               )}
               <View style={styles.voteTextContainer}>
-                <Text>{this.state.post.totalvote}</Text>
+                <Text>{Math.abs(this.state.post.totalvote)}</Text>
               </View>
               {this.state.activity.downvote ? (
                 <Icon
                   name="arrow-down-outline"
                   type="ionicon"
                   size={25}
-                  color={constants.styleConstants.orange}
+                  color={constants.styleConstants.darkOrange}
                   onPress={() => this._pressDownvote(false)}
                 />
               ) : (
@@ -318,20 +520,7 @@ class PostActivityBar extends React.Component {
               color={constants.styleConstants.black}
               containerStyle={{ flex: 1 }}
             />
-            <View style={styles.misinformationContainer}>
-              <Icon
-                name="exclamation"
-                type="evilicon"
-                size={constants.styleConstants.iconSize}
-                // color={constants.styleConstants.black}
-                color="red"
-              />
-              <View style={styles.misinformationTextContainer}>
-                <Text style={styles.misinformationText}>
-                  {this.state.post.misinformation}
-                </Text>
-              </View>
-            </View>
+            {misinformationButton}
           </View>
         </View>
       );
@@ -352,13 +541,27 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
   },
-  iconBar: {
-    height: (constants.styleConstants.rowHeight * 4) / 5,
+  publicMis: {
     width: 100 + "%",
+    // paddingVertical: 5,
     padding: 5,
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  publicMisText: {
+    paddingHorizontal: 2,
+    fontSize: 12,
+    color: "red",
+  },
+  iconBar: {
+    height: constants.styleConstants.rowHeight,
+    width: 100 + "%",
+    // paddingVertical: 5,
     paddingHorizontal: 15,
     flexDirection: "row",
     justifyContent: "space-around",
+    alignItems: "center",
   },
   voteContainer: {
     flex: 1,
@@ -366,6 +569,7 @@ const styles = StyleSheet.create({
     // width: 100 + "%",
     flexDirection: "row",
     justifyContent: "center",
+    alignItems: "center",
   },
   voteTextContainer: {
     height: 100 + "%",
@@ -373,10 +577,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   misinformationContainer: {
-    flex: 1,
+    // flex: 1,
+    width: 100 + "%",
     height: 100 + "%",
-    flexDirection: "row",
-    alignContent: "center",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
   },
   misinformationTextContainer: {
     height: 100 + "%",
@@ -384,6 +590,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
   },
   misinformationText: {
+    color: "red",
+  },
+
+  markedMisText: {
+    fontSize: 12,
     color: "red",
   },
 });

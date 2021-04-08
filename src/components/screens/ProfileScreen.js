@@ -553,7 +553,6 @@ const styles = StyleSheet.create({
     width: Dimensions.get("window").width * 0.7,
     flexDirection: "row",
     justifyContent: "space-evenly",
-    // backgroundColor: "yellow",
     marginBottom: 10,
   },
   followContainer: {
