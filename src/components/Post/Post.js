@@ -7,10 +7,11 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { Icon } from "react-native-elements";
+
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { API, graphqlOperation } from "aws-amplify";
+import Hyperlink from "react-native-hyperlink";
 
 import { getUserPostActivity } from "../../graphql/queries";
 import { createUserPostActivity } from "../../graphql/mutations";
@@ -99,6 +100,30 @@ class Post extends React.Component {
 
   render() {
     const post = this.props.post;
+    // return (
+    //   <View style={styles.container}>
+    //     <UserBar onPress={() => this.focusPost()} />
+    //     <TouchableOpacity
+    //       key={post.id + "View"}
+    //       style={styles.postContainer}
+    //       onPress={() => this.focusPost(post.id)}
+    //       activeOpacity={1.0}
+    //     >
+    //       <Text key={this.props.post.id} style={styles.titleText}>
+    //         {post.title}
+    //       </Text>
+    //       <Text style={styles.textInputContainer}>{post.text}</Text>
+    //       {DisplayPhotos(post.photos)}
+    //     </TouchableOpacity>
+    //     {DisplayTopics(post.topics)}
+    //     <PostActivityBar
+    //       post={post}
+    //       focusPost={() => this.focusPost()}
+    //       focused={this.props.focusPost}
+    //       navigation={this.props.navgiation}
+    //     />
+    //   </View>
+    // );
     return (
       <View style={styles.container}>
         <UserBar onPress={() => this.focusPost()} />
@@ -111,7 +136,9 @@ class Post extends React.Component {
           <Text key={this.props.post.id} style={styles.titleText}>
             {post.title}
           </Text>
-          <Text style={styles.textInputContainer}>{post.text}</Text>
+          <Hyperlink linkDefault={true}>
+            <Text style={styles.textInputContainer}>{post.text}</Text>
+          </Hyperlink>
           {DisplayPhotos(post.photos)}
         </TouchableOpacity>
         {DisplayTopics(post.topics)}
@@ -157,6 +184,7 @@ export default function (props) {
 
 const styles = StyleSheet.create({
   container: {
+    // height: Dimensions.get("window").height,
     width: 100 + "%",
     backgroundColor: constants.styleConstants.postBackgroundColor,
     borderBottomWidth: constants.styleConstants.betweenPostsWidth,
@@ -187,7 +215,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "flex-start",
     flexWrap: "wrap",
-    paddingHorizontal: 5,
+    padding: 5,
   },
   topicInputContainer: {
     marginTop: 5,

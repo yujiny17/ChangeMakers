@@ -191,31 +191,31 @@ class ProfileScreen extends React.Component {
     }
 
     // for testing purposes
-    followersList = [
-      {
-        createdAt: "2021-04-07T00:46:50.160Z",
-        followeeId: "testUser3",
-        followerId: "testUser2",
-        following: true,
-        updatedAt: "2021-04-07T00:49:45.398Z",
-      },
-    ];
-    followingList = [
-      {
-        createdAt: "2021-04-06T12:56:42.723Z",
-        followeeId: "testUser",
-        followerId: "testUser3",
-        following: true,
-        updatedAt: "2021-04-06T13:04:00.889Z",
-      },
-    ];
-    this.setState({
-      followers: followersList,
-      following: followingList,
-      numFollowers: followersList.length,
-      numFollowing: followingList.length,
-    });
-    return;
+    // followersList = [
+    //   {
+    //     createdAt: "2021-04-07T00:46:50.160Z",
+    //     followeeId: "testUser3",
+    //     followerId: "testUser2",
+    //     following: true,
+    //     updatedAt: "2021-04-07T00:49:45.398Z",
+    //   },
+    // ];
+    // followingList = [
+    //   {
+    //     createdAt: "2021-04-06T12:56:42.723Z",
+    //     followeeId: "testUser",
+    //     followerId: "testUser3",
+    //     following: true,
+    //     updatedAt: "2021-04-06T13:04:00.889Z",
+    //   },
+    // ];
+    // this.setState({
+    //   followers: followersList,
+    //   following: followingList,
+    //   numFollowers: followersList.length,
+    //   numFollowing: followingList.length,
+    // });
+    // return;
 
     let relationship = await this.getRelationship(currUser.username, username);
 

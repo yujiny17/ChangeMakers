@@ -28,7 +28,7 @@ class MainApp extends React.Component {
           options={{}}
           initialParams={{ topic: "dog" }}
         /> */}
-        <MainStack.Screen
+        {/* <MainStack.Screen
           name="ProfileScreen"
           component={ProfileScreen}
           options={{
@@ -36,7 +36,7 @@ class MainApp extends React.Component {
             headerBackTitle: " ",
           }}
           initialParams={{ user: { username: "testUser3" } }}
-        />
+        /> */}
 
         {/* REAL SCREENS BELOW, ABOVE FOR TESTING PURPOSES */}
         <MainStack.Screen
@@ -90,14 +90,14 @@ class MainApp extends React.Component {
             headerStyle: styles.headerStyle,
           }}
         />
-        {/* <MainStack.Screen
+        <MainStack.Screen
           name="ProfileScreen"
           component={ProfileScreen}
           options={{
             headerShown: true,
             headerBackTitle: " ",
           }}
-        /> */}
+        />
         <MainStack.Screen
           name="FollowSearchScreen"
           component={FollowSearchScreen}

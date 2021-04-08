@@ -1,13 +1,27 @@
 import React from "react";
-import { View, Text, Image, StyleSheet, Dimensions } from "react-native";
+import {
+  View,
+  Keyboard,
+  Text,
+  Image,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
 import { Icon } from "react-native-elements";
-import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 
 import AppStatusBar from "../AppStatusBar";
 import ToolBar from "../ToolBar";
 import Post from "../Post/Post";
 import constants from "../../constants/constants";
+
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
+import { useGestureHandlerRef, useHeaderHeight } from "@react-navigation/stack";
+
+const statusBarHeight = StatusBar.currentHeight;
 
 class PostFocus extends React.Component {
   constructor(props) {
@@ -19,24 +33,65 @@ class PostFocus extends React.Component {
 
   render() {
     const post = this.props.route.params.post;
+
     return (
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+        // extraScrollHeight={500}
+        style={
+          (styles.keyboardContainer,
+          {
+            height: Dimensions.get("window").height - this.props.headerHeight,
+          })
+        }
+        contentContainerStyle={{
+          flexDirection: "column",
+          justifyContent: "flex-end",
+        }}
+        enableAutomaticScroll={true}
+        // ref={this.scrollRef}
+        // innerRef={(ref) => {
+        //   this.scroll = ref;
+        //   // this.scroll = ref.getScrollResponder();
+        // }}
+      >
         <AppStatusBar />
         <View style={styles.postFocusContainer}>
           <Post post={post} id={post.id} focusPost={true} />
         </View>
-        {/* <ToolBar /> */}
-      </View>
+      </KeyboardAwareScrollView>
+    );
+    return (
+      <TouchableOpacity
+        activeOpacity={1.0}
+        onPress={() => Keyboard.dismiss()}
+        style={styles.container}
+      >
+        <AppStatusBar />
+        <View style={styles.postFocusContainer}>
+          <Post post={post} id={post.id} focusPost={true} />
+        </View>
+      </TouchableOpacity>
     );
   }
 }
 export default function (props) {
   //   console.log("props are", { ...props });
   const navigation = useNavigation();
-  return <PostFocus {...props} navigation={navigation} />;
+  const headerHeight = useHeaderHeight();
+  return (
+    <PostFocus {...props} navigation={navigation} headerHeight={headerHeight} />
+  );
 }
 
 const styles = StyleSheet.create({
+  keyboardContainer: {
+    flex: 1,
+    // height: 100 + "%",
+    // height: Dimensions.get("window").height - headerHeight - statusBarHeight,
+    width: 100 + "%",
+    backgroundColor: constants.styleConstants.white,
+    backgroundColor: "red",
+  },
   container: {
     flex: 1,
     height: 100 + "%",
@@ -45,6 +100,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   postFocusContainer: {
     flex: 1,
     height: 100 + "%",

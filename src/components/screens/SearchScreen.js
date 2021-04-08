@@ -314,7 +314,6 @@ const styles = StyleSheet.create({
     backgroundColor: constants.styleConstants.white,
     borderWidth: 3,
   },
-
   topicsText: {
     padding: 8,
     fontSize: 20,

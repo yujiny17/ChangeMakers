@@ -4,13 +4,17 @@ import {
   Image,
   Modal,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
+  findNodeHandle,
 } from "react-native";
 import { Icon } from "react-native-elements";
-import { TouchableOpacity } from "react-native-gesture-handler";
+
 import { useNavigation } from "@react-navigation/native";
 import { API, graphqlOperation } from "aws-amplify";
 import { S3Image } from "aws-amplify-react-native";
@@ -26,7 +30,7 @@ import {
   updateUserPostActivity,
   createComment,
 } from "../../graphql/mutations";
-import { getToken } from "../../UserCredentials";
+import { getProfilePicture, getToken } from "../../UserCredentials";
 
 import constants from "../../constants/constants";
 
@@ -40,7 +44,10 @@ class PostActivityBar extends React.Component {
         post: [],
         publicMisinformation: false,
         userMisinformation: false, //user decision
-        username: null,
+        user: {
+          username: "",
+          photo: null,
+        },
         comments: [],
         commentUsers: [],
         commentInputHeight: 40,
@@ -48,6 +55,8 @@ class PostActivityBar extends React.Component {
       };
     }
     this.commentRef = React.createRef();
+    this.scrollRef = React.createRef();
+    this._scrollToInput = this._scrollToInput.bind(this);
   }
 
   async loadUserActivity(username) {
@@ -241,8 +250,17 @@ class PostActivityBar extends React.Component {
     let comments = [];
     let commentUsers = [];
 
-    let user = await getToken();
-    username = user.username;
+    let userToken = await getToken();
+    let photoToken = await getProfilePicture();
+    console.log("user photo token", photoToken);
+    let photo;
+    if (photoToken != null) {
+      photo = photoToken.profilePicture;
+    }
+    let user = {
+      username: userToken.username,
+      photo: photo,
+    };
 
     // FOR TESTING PURPOSES
     // this.setState({
@@ -261,8 +279,73 @@ class PostActivityBar extends React.Component {
     //       user: "testuser3",
     //       username: "testUser3",
     //     },
+    //     {
+    //       createdAt: "2021-04-08T02:39:37.080Z",
+    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
+    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       text:
+    //         "I also love animals very much and would like to play with a few someday!",
+    //       updatedAt: "2021-04-08T02:39:37.080Z",
+    //       user: "testuser3",
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       createdAt: "2021-04-08T02:39:37.080Z",
+    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
+    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       text:
+    //         "I also love animals very much and would like to play with a few someday!",
+    //       updatedAt: "2021-04-08T02:39:37.080Z",
+    //       user: "testuser3",
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       createdAt: "2021-04-08T02:39:37.080Z",
+    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
+    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       text:
+    //         "I also love animals very much and would like to play with a few someday!",
+    //       updatedAt: "2021-04-08T02:39:37.080Z",
+    //       user: "testuser3",
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       createdAt: "2021-04-08T02:39:37.080Z",
+    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
+    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       text:
+    //         "I also love animals very much and would like to play with a few someday!",
+    //       updatedAt: "2021-04-08T02:39:37.080Z",
+    //       user: "testuser3",
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       createdAt: "2021-04-08T02:39:37.080Z",
+    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
+    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
+    //       text:
+    //         "I also love animals very much and would like to play with a few someday!",
+    //       updatedAt: "2021-04-08T02:39:37.080Z",
+    //       user: "testuser3",
+    //       username: "testUser3",
+    //     },
     //   ],
     //   commentUsers: [
+    //     {
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       username: "testUser3",
+    //     },
+    //     {
+    //       username: "testUser3",
+    //     },
     //     {
     //       username: "testUser3",
     //     },
@@ -270,7 +353,7 @@ class PostActivityBar extends React.Component {
     // });
     // return;
 
-    let activity = await this.loadUserActivity(username);
+    let activity = await this.loadUserActivity(user.username);
     let post = this.props.post;
 
     // retrieved activity has extra fields _version, _deleted, _lastChangedAt
@@ -310,7 +393,7 @@ class PostActivityBar extends React.Component {
       post: statePost,
       publicMisinformation: publicMisinformation,
       userMisinformation: userMisinformation,
-      username: username,
+      user: user,
       comments: comments,
       commentUsers: commentUsers,
     });
@@ -318,8 +401,8 @@ class PostActivityBar extends React.Component {
     // console.log("Mounted and state is now", this.state);
 
     // focus comment text component
-    if (this.commentRef != null) {
-      this.commentRef?.current.focus();
+    if (this.commentRef?.current != null) {
+      this.commentRef.current.focus();
     }
   }
 
@@ -502,9 +585,6 @@ class PostActivityBar extends React.Component {
           size={constants.styleConstants.iconSize}
           color={constants.styleConstants.black}
           containerStyle={{ flex: 1 }}
-          // onPress={() => this.props.focusPost()}
-
-          // on press bring comment bar into focus
         />
       );
     } else {
@@ -527,12 +607,14 @@ class PostActivityBar extends React.Component {
 
   async submitComment() {
     this.commentRef.current.blur();
+    let comment;
     try {
       const input = {
-        username: this.state.username,
+        username: this.state.user.username,
         postId: this.state.post.id,
         text: this.state.userComment,
       };
+      console.log("creating", input);
       const resp = await API.graphql(
         graphqlOperation(createComment, { input: input })
       );
@@ -571,14 +653,19 @@ class PostActivityBar extends React.Component {
     let users = this.state.commentUsers;
     // console.log("users of comments are", users);
 
+    let commentBar = this._commentBar();
+
     return (
-      <View
-        style={{
-          width: 100 + "%",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-        }}
-      >
+      // <ScrollView
+      //   style={{
+      //     width: 100 + "%",
+      //   }}
+      //   contentContainerStyle={{
+      //     flexDirection: "column",
+      //     justifyContent: "flex-end",
+      //   }}
+      // >
+      <View style={{ width: 100 + "%" }}>
         {comments.map((comment, i) => (
           <TouchableOpacity
             style={{
@@ -597,7 +684,7 @@ class PostActivityBar extends React.Component {
             key={i}
           >
             <View style={styles.userPhotoContainer}>
-              {users[i].photo ? (
+              {users[i]?.photo ? (
                 <S3Image imgKey={users[i].photo} style={styles.userPhoto} />
               ) : (
                 <Icon
@@ -607,12 +694,6 @@ class PostActivityBar extends React.Component {
                   size={40}
                 />
               )}
-              {/* <Icon
-                name="account-circle"
-                type="material-community"
-                color="black"
-                size={40}
-              /> */}
             </View>
             <View
               style={{
@@ -630,31 +711,35 @@ class PostActivityBar extends React.Component {
             </View>
           </TouchableOpacity>
         ))}
+        {commentBar}
+        {/* </ScrollView> */}
+        {/* </KeyboardAwareScrollView> */}
       </View>
     );
   }
 
+  _scrollToInput(reactNode) {
+    // Add a 'scroll' ref to your ScrollView
+    // console.log("reactnode", reactNode);
+    console.log("this scroll", this.scroll.props.scrollToFocusedInput);
+    // console.log("my scrollRef", this.scrollRef.current.props);
+    this.scroll.props.scrollToFocusedInput(reactNode);
+  }
   _commentBar() {
     if (this.props.focused) {
       return (
-        <TouchableOpacity style={styles.commentBar} activeOpacity={1.0}>
+        <View style={styles.commentBar}>
           <View style={styles.userPhoto}>
-            {/* {userPhotoExists ? (
-            <S3Image imgKey={this.state.user.photo} style={styles.userPhoto} />
-          ) : (
-            <Icon
-              name="account-circle"
-              type="material-community"
-              color="black"
-              size={40}
-            />
-          )} */}
-            <Icon
-              name="account-circle"
-              type="material-community"
-              color="black"
-              size={40}
-            />
+            {this.state.user?.photo ? (
+              <S3Image imgKey={this.state.user.photo} />
+            ) : (
+              <Icon
+                name="account-circle"
+                type="material-community"
+                color="black"
+                size={40}
+              />
+            )}
           </View>
 
           <View
@@ -692,7 +777,7 @@ class PostActivityBar extends React.Component {
               }}
             />
           </View>
-        </TouchableOpacity>
+        </View>
       );
     }
   }
@@ -745,6 +830,60 @@ class PostActivityBar extends React.Component {
     }
     // once user activity has loaded
     else {
+      // if focused show comments
+      if (this.props.focused) {
+        return (
+          <View style={styles.container}>
+            {publicMisinformation}
+            {userMisinformation}
+            <View style={styles.iconBar}>
+              <View style={styles.voteContainer}>
+                {this.state.activity.upvote ? (
+                  <Icon
+                    name="arrow-up-outline"
+                    type="ionicon"
+                    size={25}
+                    color={constants.styleConstants.orange}
+                    onPress={() => this._pressUpvote(false)}
+                  />
+                ) : (
+                  <Icon
+                    name="arrow-up-outline"
+                    type="ionicon"
+                    size={25}
+                    color={constants.styleConstants.black}
+                    onPress={() => this._pressUpvote(true)}
+                  />
+                )}
+                <View style={styles.voteTextContainer}>
+                  <Text>{Math.abs(this.state.post.totalvote)}</Text>
+                </View>
+                {this.state.activity.downvote ? (
+                  <Icon
+                    name="arrow-down-outline"
+                    type="ionicon"
+                    size={25}
+                    color={constants.styleConstants.darkOrange}
+                    onPress={() => this._pressDownvote(false)}
+                  />
+                ) : (
+                  <Icon
+                    name="arrow-down-outline"
+                    type="ionicon"
+                    size={25}
+                    color={constants.styleConstants.black}
+                    onPress={() => this._pressDownvote(true)}
+                  />
+                )}
+              </View>
+              {commentButton}
+              {misinformationButton}
+            </View>
+            {comments}
+            {/* {commentBar} */}
+          </View>
+        );
+      }
       return (
         <View style={styles.container}>
           {publicMisinformation}
@@ -792,8 +931,6 @@ class PostActivityBar extends React.Component {
             {commentButton}
             {misinformationButton}
           </View>
-          {comments}
-          {commentBar}
         </View>
       );
     }
@@ -809,7 +946,7 @@ const styles = StyleSheet.create({
   container: {
     width: 100 + "%",
     flexDirection: "column",
-    justifyContent: "center",
+    // justifyContent: "center",
   },
   publicMis: {
     width: 100 + "%",
@@ -888,7 +1025,7 @@ const styles = StyleSheet.create({
   commentBar: {
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "flex-end",
     marginVertical: 5,
     paddingVertical: 5,
     paddingLeft: 10,

@@ -4,6 +4,7 @@ import { Auth } from "aws-amplify";
 
 import {
   Dimensions,
+  Keyboard,
   Image,
   StyleSheet,
   ScrollView,
@@ -142,7 +143,11 @@ class CreatePostForm extends React.Component {
 
   render() {
     return (
-      <View style={styles.mainContainerStyle}>
+      <TouchableOpacity
+        style={styles.mainContainerStyle}
+        activeOpacity={1.0}
+        onPress={() => Keyboard.dismiss()}
+      >
         <View style={styles.inputContainer}>
           <UserBar onPress={() => {}} />
           <TextInput
@@ -226,7 +231,7 @@ class CreatePostForm extends React.Component {
             </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </TouchableOpacity>
     );
   }
 }

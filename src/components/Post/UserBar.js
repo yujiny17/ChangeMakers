@@ -21,10 +21,12 @@ class UserBar extends React.Component {
 
   async componentDidMount() {
     const userToken = await getToken();
-    const photo = await getProfilePicture();
+    const photoToken = await getProfilePicture();
+    let photo;
+    if (photoToken != null) photo = photoToken.profilePicture;
     let user = {
       username: userToken.username,
-      photo: photo.profilePicture,
+      photo: photo,
     };
     this.setState({ user: user });
   }
