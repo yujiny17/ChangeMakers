@@ -2,6 +2,7 @@ import React from "react";
 import { Button, Icon } from "react-native-elements";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { API, graphqlOperation } from "aws-amplify";
 
 import { getToken, getProfilePicture } from "../UserCredentials";
 import constants from "../constants/constants";
@@ -14,12 +15,9 @@ class ToolBar extends React.Component {
   async componentDidMount() {
     const userToken = await getToken();
     const photoToken = await getProfilePicture();
-    let photo;
-    if (photoToken != null) photo = photoToken.profilePicture;
 
     let user = {
       username: userToken.username,
-      photo: photo,
     };
     this.setState({ user: user });
   }

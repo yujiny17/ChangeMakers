@@ -2,6 +2,7 @@ import React from "react";
 import Storage from "@aws-amplify/storage";
 import { API, graphqlOperation } from "aws-amplify";
 import { createPhoto } from "../graphql/mutations";
+import "react-native-get-random-values";
 import { v4 as uuidv4 } from "uuid";
 
 async function uploadPhotoS3(photo) {

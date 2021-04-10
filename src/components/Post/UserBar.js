@@ -4,8 +4,10 @@ import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { S3Image } from "aws-amplify-react-native";
 import { useNavigation } from "@react-navigation/native";
-import { getToken, getProfilePicture } from "../../UserCredentials";
+import { API, graphqlOperation } from "aws-amplify";
+import { getUser } from "../../graphql/queries";
 
+import { getToken, getProfilePicture } from "../../UserCredentials";
 import constants from "../../constants/constants";
 
 class UserBar extends React.Component {
@@ -16,36 +18,67 @@ class UserBar extends React.Component {
         username: null,
         photo: null,
       },
+      photo: "",
     };
   }
 
+  async _getPostUser(username) {
+    let users = [];
+    try {
+      let resp = await API.graphql(
+        graphqlOperation(getUser, { username: username })
+      );
+      let user = resp.data.getUser;
+      // console.log("post user is", user);
+      return user;
+    } catch (error) {
+      console.log("error get post user", error);
+    }
+    return users;
+  }
+
   async componentDidMount() {
-    const userToken = await getToken();
-    const photoToken = await getProfilePicture();
-    let photo;
-    if (photoToken != null) photo = photoToken.profilePicture;
-    let user = {
-      username: userToken.username,
-      photo: photo,
-    };
-    this.setState({ user: user });
+    let loadPostUser = this.props.loadPostUser;
+    // if !loadPostUser, then it's a CreatePostForm so just get
+    // current user
+    if (!loadPostUser) {
+      const userToken = await getToken();
+      const photoToken = await getProfilePicture();
+      let photo;
+      if (photoToken != null) photo = photoToken.profilePicture;
+      let user = {
+        username: userToken.username,
+        photo: photo,
+      };
+      this.setState({ user: user, photo: user.photo });
+      return;
+    }
+    // otherwise, load post user
+    else {
+      const username = this.props.username;
+      let user = await this._getPostUser(username);
+      this.setState({ user: user, photo: user.photo });
+    }
   }
 
   render() {
     let userPhotoExists = false;
-    if (this.state.user?.photo != null) {
+    if (this.state.photo != null) {
       userPhotoExists = true;
     }
-
     return (
       <TouchableOpacity
         style={styles.userBar}
-        onPress={() => this.props.onPress()}
+        onPress={() =>
+          this.props.navigation.navigate("ProfileScreen", {
+            user: this.state.user,
+          })
+        }
         activeOpacity={1.0}
       >
         <View style={styles.userPhotoName}>
-          {/* {userPhotoExists ? (
-            <S3Image imgKey={this.state.user.photo} style={styles.userPhoto} />
+          {userPhotoExists ? (
+            <S3Image imgKey={this.state.photo} style={styles.userPhoto} />
           ) : (
             <Icon
               name="account-circle"
@@ -53,16 +86,9 @@ class UserBar extends React.Component {
               color="black"
               size={40}
             />
-          )} */}
-          <Icon
-            name="account-circle"
-            type="material-community"
-            color="black"
-            size={40}
-          />
+          )}
           <View style={styles.userNameContainer}>
-            <Text style={styles.userName}>Yujin</Text>
-            {/* <Text style={styles.userName}>{user.username}</Text> */}
+            <Text style={styles.userName}>{this.state.user.username}</Text>
           </View>
         </View>
 
@@ -106,6 +132,8 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "black",
   },
   userNameContainer: {
     flexDirection: "column",

@@ -9,7 +9,13 @@ import {
 import constants from "../../constants/constants";
 import { Auth } from "aws-amplify";
 import { AuthContext } from "../../context/AuthContext";
-import { storeToken, getToken } from "../../UserCredentials";
+import { API, graphqlOperation } from "aws-amplify";
+import { getUser } from "../../graphql/queries";
+import {
+  storeToken,
+  storeProfilePicture,
+  getToken,
+} from "../../UserCredentials";
 import errorMessage from "../ErrorMessage";
 
 class LogIn extends React.Component {
@@ -22,12 +28,27 @@ class LogIn extends React.Component {
     };
   }
 
+  async _getUser(username) {
+    try {
+      let resp = await API.graphql(
+        graphqlOperation(getUser, { username: username })
+      );
+      let user = resp.data.getUser;
+      console.log("user is", user);
+      return user;
+    } catch (error) {
+      console.log("error get post user", error);
+    }
+  }
+
   async _signIn(username, password) {
     try {
-      const user = await Auth.signIn(username, password);
-      console.log("Signing in user:", user.username);
+      const userToken = await Auth.signIn(username, password);
+      let user = await this._getUser(username);
+      console.log("Signing in user:", user);
 
       storeToken(username, password);
+      storeProfilePicture(user.photo);
       this.context.setUserToken(username);
     } catch (error) {
       console.log("Error signing in", error);
@@ -58,7 +79,7 @@ class LogIn extends React.Component {
   async _checkUser() {
     let user;
     try {
-      user = await getToken();
+      // user = await getToken();
     } catch (error) {
       console.log("error retrieving user token");
       return;

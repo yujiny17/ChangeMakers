@@ -22,6 +22,8 @@ import { S3Image } from "aws-amplify-react-native";
 import UserBar from "./UserBar";
 import PostActivityBar from "./PostActivityBar";
 import constants from "../../constants/constants";
+import { Linking } from "react-native";
+import Autolink from "react-native-autolink";
 
 class Post extends React.Component {
   constructor(props) {
@@ -98,8 +100,29 @@ class Post extends React.Component {
     return;
   }
 
+  _displayTopics(topics) {
+    if (topics == null || topics?.length <= 0) return;
+    return (
+      <View style={styles.displayTopics}>
+        {topics.map((topic, i) => (
+          <TouchableOpacity
+            activeOpacity={1.0}
+            style={styles.topicInputContainer}
+            key={i}
+            onPress={() => {
+              this.props.navigation.push("TopicScreen", { topic: topics[i] });
+            }}
+          >
+            <Text style={styles.topicTextInputContainer}>{topics[i]}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    );
+  }
+
   render() {
     const post = this.props.post;
+    let displayTopics = this._displayTopics(post.topics);
     // return (
     //   <View style={styles.container}>
     //     <UserBar onPress={() => this.focusPost()} />
@@ -126,22 +149,38 @@ class Post extends React.Component {
     // );
     return (
       <View style={styles.container}>
-        <UserBar onPress={() => this.focusPost()} />
-        <TouchableOpacity
+        <UserBar
+          username={post.username}
+          loadPostUser={true}
+          navigation={this.props.navigation}
+        />
+        <View
           key={post.id + "View"}
           style={styles.postContainer}
-          onPress={() => this.focusPost(post.id)}
-          activeOpacity={1.0}
+          // onPress={() => this.focusPost(post.id)}
+          // activeOpacity={1.0}
         >
-          <Text key={this.props.post.id} style={styles.titleText}>
-            {post.title}
-          </Text>
-          <Hyperlink linkDefault={true}>
-            <Text style={styles.textInputContainer}>{post.text}</Text>
-          </Hyperlink>
+          <TouchableOpacity
+            activeOpacity={1.0}
+            onPress={() => this.focusPost(post.id)}
+          >
+            <Text key={this.props.post.id} style={styles.titleText}>
+              {post.title}
+            </Text>
+          </TouchableOpacity>
+
+          <Autolink
+            text={post.text}
+            url
+            linkStyle={{ fontSize: 20, color: "blue" }}
+            style={styles.textInputContainer}
+          >
+            {/* <Text style={styles.textInputContainer}>{post.text}</Text> */}
+          </Autolink>
+
           {DisplayPhotos(post.photos)}
-        </TouchableOpacity>
-        {DisplayTopics(post.topics)}
+        </View>
+        {displayTopics}
         <PostActivityBar
           post={post}
           focusPost={() => this.focusPost()}
@@ -152,26 +191,23 @@ class Post extends React.Component {
     );
   }
 }
-
-const DisplayTopics = (topics) => {
-  if (topics == null || topics?.length <= 0) return;
-  return (
-    <View style={styles.displayTopics}>
-      {topics.map((topic, i) => (
-        <View style={styles.topicInputContainer} key={i}>
-          <Text style={styles.topicTextInputContainer}>{topics[i]}</Text>
-        </View>
-      ))}
-    </View>
-  );
-};
+{
+  /* <Hyperlink
+            linkDefault={true}
+            linkStyle={{ color: "#0000EE" }}
+            onPress={(url) => {
+              console.log("link pressed");
+              Linking.openURL(url);
+            }}
+          > */
+}
 
 const DisplayPhotos = (photos) => {
   if (photos == null || photos?.length <= 0) return;
   return (
     <View style={styles.displayPhotos}>
       {photos.map((photoId, i) => (
-        <S3Image imgKey={photoId} style={styles.postPhoto} />
+        <S3Image imgKey={photoId} style={styles.postPhoto} key={i} />
       ))}
     </View>
   );
@@ -218,7 +254,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   topicInputContainer: {
-    marginTop: 5,
     marginLeft: 5,
     backgroundColor: constants.styleConstants.orange,
     borderColor: constants.styleConstants.orange,
@@ -234,14 +269,14 @@ const styles = StyleSheet.create({
     fontSize: 18,
   },
   displayPhotos: {
-    width: "100%",
+    width: Dimensions.get("window").width * 0.95,
     flexDirection: "row",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     flexWrap: "wrap",
-    paddingHorizontal: 10,
+    // paddingHorizontal: 10,
   },
   postPhoto: {
-    height: 1080 / PixelRatio.get(),
-    width: 1080 / PixelRatio.get(),
+    height: Dimensions.get("window").width * 0.95,
+    width: Dimensions.get("window").width * 0.95,
   },
 });

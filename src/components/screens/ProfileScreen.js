@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  ActivityIndicator,
   Image,
   PixelRatio,
   View,
@@ -35,14 +36,16 @@ import UserResult from "../Search/UserResult";
 import Post from "../Post/Post";
 import ToolBar from "../ToolBar";
 import TopicResult from "../Search/TopicResult";
-import { getToken } from "../../UserCredentials";
+import { getToken, getProfilePicture } from "../../UserCredentials";
 
 class ProfileScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       profileUser: null,
       currUser: null,
+      photo: null,
       followers: null,
       following: null,
       numFollowers: 0,
@@ -122,13 +125,13 @@ class ProfileScreen extends React.Component {
       //   console.log("resp", resp);
       let possFollowing = resp.data.listFollowRelationshipsbyFollower.items;
       followingList = this.trulyFollowing(possFollowing);
-      console.log(
-        username,
-        "is following",
-        followingList.length,
-        "users:",
-        followingList
-      );
+      // console.log(
+      //   username,
+      //   "is following",
+      //   followingList.length,
+      //   "users:",
+      //   followingList
+      // );
       return followingList;
     } catch (error) {
       console.log("error fetching following", error);
@@ -146,7 +149,7 @@ class ProfileScreen extends React.Component {
       );
       //   console.log("resp", resp);
       posts = resp.data.listPostsBySpecificOwner.items;
-      console.log(username, "has", posts.length, "posts");
+      // console.log(username, "has", posts.length, "posts");
       return posts;
     } catch (error) {
       console.log("error fetching user posts", error);
@@ -159,10 +162,9 @@ class ProfileScreen extends React.Component {
       let resp = await API.graphql(
         graphqlOperation(listTopicFollowRelationships, { followerId: username })
       );
-      console.log("resp", resp);
       let possList = resp.data.listTopicFollowRelationships.items;
       list = this.trulyFollowing(possList);
-      console.log(username, "follows", list);
+      // console.log(username, "follows", list);
       return list;
     } catch (error) {
       console.log("error fetching topics", error);
@@ -174,6 +176,7 @@ class ProfileScreen extends React.Component {
     // check if this is current user's profile
     const user = this.props.route.params.user;
     const username = user.username;
+    let photo = null;
     let ownProfile = false;
     let followersList = [];
     let followingList = [];
@@ -189,33 +192,12 @@ class ProfileScreen extends React.Component {
     if (currUser.username == username) {
       ownProfile = true;
     }
-
-    // for testing purposes
-    // followersList = [
-    //   {
-    //     createdAt: "2021-04-07T00:46:50.160Z",
-    //     followeeId: "testUser3",
-    //     followerId: "testUser2",
-    //     following: true,
-    //     updatedAt: "2021-04-07T00:49:45.398Z",
-    //   },
-    // ];
-    // followingList = [
-    //   {
-    //     createdAt: "2021-04-06T12:56:42.723Z",
-    //     followeeId: "testUser",
-    //     followerId: "testUser3",
-    //     following: true,
-    //     updatedAt: "2021-04-06T13:04:00.889Z",
-    //   },
-    // ];
-    // this.setState({
-    //   followers: followersList,
-    //   following: followingList,
-    //   numFollowers: followersList.length,
-    //   numFollowing: followingList.length,
-    // });
-    // return;
+    if (ownProfile) {
+      let photoToken = await getProfilePicture();
+      if (photoToken != null) photo = photoToken.profilePicture;
+    } else {
+      if (user.photo != null) photo = user.photo;
+    }
 
     let relationship = await this.getRelationship(currUser.username, username);
 
@@ -230,8 +212,10 @@ class ProfileScreen extends React.Component {
     topics = await this.getTopics(username);
 
     this.setState({
+      loading: false,
       currUser: currUser.username,
       profileUser: username,
+      photo: photo,
       ownProfile: ownProfile,
       followersList: followersList,
       followingList: followingList,
@@ -241,8 +225,6 @@ class ProfileScreen extends React.Component {
       topics: topics,
       followRelationship: followRelationship,
     });
-
-    console.log(this.state);
   }
 
   async follow(toggleFollow) {
@@ -411,7 +393,7 @@ class ProfileScreen extends React.Component {
   render() {
     const user = this.props.route.params.user;
     let userPhotoExists = false;
-    if (user.photo != null) {
+    if (this.state.photo != null) {
       userPhotoExists = true;
     }
 
@@ -422,7 +404,13 @@ class ProfileScreen extends React.Component {
 
     let optionBar = this._optionBar();
     let body = this._body();
-
+    if (this.state.loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={styles.belowAppStatusContainer}>
@@ -431,21 +419,18 @@ class ProfileScreen extends React.Component {
               <View style={styles.userPhotoName2}>
                 <View style={styles.userPhotoContainer}>
                   {userPhotoExists ? (
-                    <S3Image imgKey={user.photo} style={styles.userPhoto} />
+                    <S3Image
+                      imgKey={this.state.photo}
+                      style={styles.userPhoto}
+                    />
                   ) : (
                     <Icon
                       name="account-circle"
                       type="material-community"
                       color="black"
-                      size={100}
+                      size={75}
                     />
                   )}
-                  {/* <Icon
-                    name="account-circle"
-                    type="material-community"
-                    color="black"
-                    size={100}
-                  /> */}
                 </View>
                 <View style={styles.userNameContainer}>
                   <Text style={styles.userName}>{user.username}</Text>
@@ -502,6 +487,15 @@ export default function (props) {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    height: 100 + "%",
+    width: 100 + "%",
+    flex: 1,
+    backgroundColor: constants.styleConstants.white,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   container: {
     flex: 1,
     height: 100 + "%",
@@ -547,9 +541,11 @@ const styles = StyleSheet.create({
   userPhoto: {
     // height: 100,
     // width: 100,
-    height: 320 / PixelRatio.get(),
-    width: 320 / PixelRatio.get(),
+    height: 100,
+    width: 100,
     borderRadius: 50,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "black",
   },
   userNameContainer: {
     height: 100 + "%",

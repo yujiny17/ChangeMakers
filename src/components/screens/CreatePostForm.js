@@ -1,7 +1,4 @@
-import React, { useState, getState } from "react";
-import Storage from "@aws-amplify/storage";
-import { Auth } from "aws-amplify";
-
+import React from "react";
 import {
   Dimensions,
   Keyboard,
@@ -21,7 +18,6 @@ import { post } from "../../actions/CreatePost";
 import { PostButton, CloseButton } from "../CreatePost/CreatePostHeader";
 import UserBar from "../Post/UserBar";
 import constants from "../../constants/constants.js";
-import { TouchableHighlight } from "react-native-gesture-handler";
 
 const initialState = { title: "", text: "" };
 
@@ -39,11 +35,6 @@ class CreatePostForm extends React.Component {
       topics: [],
     };
   }
-
-  // const navigation = useNavigation();
-  // const [formState, setFormState] = useState(initialState);
-  // const [inputHeight, setInputHeight] = useState(0);
-  // variables to pass to post()
 
   componentDidMount() {
     this._unsubscribe = this.props.navigation.addListener("focus", () => {
@@ -65,32 +56,14 @@ class CreatePostForm extends React.Component {
   componentWillUnmount() {
     this._unsubscribe();
   }
-  // const photos = props.route.params.photos;
-
-  //   const videos
-  // const links
-
-  // React.useLayoutEffect(() => {
-  //   navigation.setOptions({
-  //     headerBackImage: () => <CloseButton />,
-  //     headerRight: () => <PostButton onPress={() => post(formState, photos)} />,
-  //   });
-  // });
 
   setInput(key, value) {
     this.setState({ formState: { ...this.state.formState, [key]: value } });
   }
-  // setInput(key, value) {
-  //   setFormState({ ...formState, [key]: value });
-  // }
 
   updateSize(height) {
     this.setState({ inputHeight: height });
   }
-  // updateSize(height) {
-  //   setInputHeight(height);
-  // }
-
   _addTopic() {
     let topics = this.state.topics;
     topics.push("");
@@ -98,7 +71,7 @@ class CreatePostForm extends React.Component {
   }
 
   _setTopic(input, i) {
-    console.log("setting topic", i, "to", input);
+    // console.log("setting topic", i, "to", input);
     let topics = this.state.topics;
     topics[i] = input;
     topics.edited = true;
@@ -140,6 +113,23 @@ class CreatePostForm extends React.Component {
       </View>
     );
   };
+  DisplayPhotos = (photos) => {
+    if (photos == null || photos?.length <= 0) return;
+    return (
+      <View style={styles.displayPhotos}>
+        {photos.map((item, i) => (
+          <Image
+            style={{
+              height: Dimensions.get("window").width * 0.95,
+              width: Dimensions.get("window").width * 0.95,
+            }}
+            source={{ uri: item.uri }}
+            key={i}
+          />
+        ))}
+      </View>
+    );
+  };
 
   render() {
     return (
@@ -149,7 +139,7 @@ class CreatePostForm extends React.Component {
         onPress={() => Keyboard.dismiss()}
       >
         <View style={styles.inputContainer}>
-          <UserBar onPress={() => {}} />
+          <UserBar loadPostUser={false} onPress={() => {}} />
           <TextInput
             placeholder={"Post Title"}
             style={styles.titleInputContainer}
@@ -188,14 +178,14 @@ class CreatePostForm extends React.Component {
               style={{
                 width: 100 + "%",
                 color: constants.styleConstants.black,
-                paddingHorizontal: 20,
-                paddingVertical: 10,
+                // paddingHorizontal: 20,
+                // paddingVertical: 10,
                 fontSize: 20,
                 flexGrow: 1,
                 height: Math.max(40, this.state.inputHeight),
               }}
             />
-            {DisplayPhotos(this.state.photos)}
+            {this.DisplayPhotos(this.state.photos)}
             {this.DisplayTopics(this.state.topics)}
           </ScrollView>
         </View>
@@ -236,24 +226,6 @@ class CreatePostForm extends React.Component {
   }
 }
 
-const DisplayPhotos = (photos) => {
-  if (photos == null || photos?.length <= 0) return;
-  return (
-    <View style={styles.displayPhotos}>
-      {photos.map((item, i) => (
-        <Image
-          style={{
-            height: constants.styleConstants.selectedImageHeight,
-            width: constants.styleConstants.selectedImageWidth,
-          }}
-          source={{ uri: item.uri }}
-          key={i}
-        />
-      ))}
-    </View>
-  );
-};
-
 export default function (props) {
   const navigation = useNavigation();
   return <CreatePostForm {...props} navigation={navigation} />;
@@ -288,33 +260,29 @@ const styles = StyleSheet.create({
     width: 100 + "%",
     flexDirection: "column",
     justifyContent: "space-between",
-  },
-  textInputContainer: {
-    width: 100 + "%",
-    color: constants.styleConstants.black,
+    alignContent: "center",
     paddingHorizontal: 20,
-    paddingTop: 10,
-    fontSize: 20,
-    flexGrow: 1,
+    paddingVertical: 10,
   },
 
   displayPhotos: {
     width: "100%",
-    flexDirection: "row",
+    flexDirection: "column",
     justifyContent: "flex-start",
-    flexWrap: "wrap",
-    paddingHorizontal: 10,
+    alignItems: "center",
+    // flexWrap: "wrap",
+    // paddingHorizontal: 10,
   },
   displayTopics: {
     width: "100%",
     flexDirection: "row",
     justifyContent: "flex-start",
     flexWrap: "wrap",
-    margin: 10,
+    // marginHorizontal: 5,
   },
   topicInputContainer: {
-    marginVertical: 10,
-    marginHorizontal: 10,
+    // marginVertical: 10,
+    // marginHorizontal: 10,
     borderColor: constants.styleConstants.orange,
     borderWidth: 1,
     borderRadius: 20,

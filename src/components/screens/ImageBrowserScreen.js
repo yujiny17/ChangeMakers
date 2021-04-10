@@ -13,11 +13,13 @@ import constants from "../../constants/constants";
 
 export default class ImageBrowserScreen extends Component {
   headerLoader = () => (
-    <ActivityIndicator
-      size="small"
-      color={"#0580FF"}
-      style={styles.loadingIndicator}
-    />
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator
+        size="small"
+        color={"#0580FF"}
+        style={styles.loadingIndicator}
+      />
+    </View>
   );
 
   imagesCallback = (callback) => {
@@ -37,7 +39,7 @@ export default class ImageBrowserScreen extends Component {
             type: "image/jpg",
           });
         }
-        console.log("returning photos", photoSelection);
+        // console.log("returning photos", photoSelection);
         navigation.navigate("CreatePostForm", { photos: photoSelection });
       })
       .catch((e) => console.log(e));
@@ -107,6 +109,14 @@ export default class ImageBrowserScreen extends Component {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    height: 100 + "%",
+    width: 100 + "%",
+    flex: 1,
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   emptyText: {
     textAlign: "center",
   },

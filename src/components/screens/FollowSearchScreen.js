@@ -12,8 +12,6 @@ import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { API, graphqlOperation } from "aws-amplify";
-import { S3Image } from "aws-amplify-react-native";
-import Storage from "@aws-amplify/storage";
 
 import { getUser } from "../../graphql/queries";
 
@@ -33,7 +31,6 @@ class FollowSearchScreen extends React.Component {
 
   _startsWith(user, query) {
     const username = user.username;
-    // console.log("examining user", username, query);
     if (username.startsWith(query)) {
       return true;
     }
@@ -62,7 +59,6 @@ class FollowSearchScreen extends React.Component {
     let followers = [];
     await Promise.all(
       list.map(async (item) => {
-        // console.log("relationship", item);
         let resp = await API.graphql(
           graphqlOperation(getUser, { username: item.followerId })
         );
@@ -76,7 +72,6 @@ class FollowSearchScreen extends React.Component {
     let followers = [];
     await Promise.all(
       list.map(async (item) => {
-        // console.log("relationship", item);
         let resp = await API.graphql(
           graphqlOperation(getUser, { username: item.followeeId })
         );
@@ -95,16 +90,12 @@ class FollowSearchScreen extends React.Component {
     const followerRelationships = this.props.route.params.followers;
     const followingRelationships = this.props.route.params.following;
 
-    // console.log("dsjflsdkfjds", followerRelationships, followingRelationships);
     followers = await this._getFollowersfromRelationships(
       followerRelationships
     );
     following = await this._getFollowingfromRelationships(
       followingRelationships
     );
-
-    // console.log("followers", followers);
-    // console.log("following", following);
 
     if (focus == "followers") {
       results = followers;

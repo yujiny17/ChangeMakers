@@ -2,17 +2,13 @@ import React from "react";
 import {
   ActivityIndicator,
   FlatList,
-  RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-import { Header } from "react-native-elements";
 import { API, graphqlOperation } from "aws-amplify";
 
-// import { connect } from "react-redux";
-// import { fetchPosts } from "../../actions/NewsFeed";
 import {
   listPersonalTimelinesByOwner,
   listPostsByPopularity,
@@ -40,7 +36,6 @@ class NewsFeedBody extends React.Component {
     let posts = [];
     try {
       // get user's timeline
-      console.log("getting user timeline for", username);
       const resp = await API.graphql(
         graphqlOperation(listPersonalTimelinesByOwner, {
           username: username,
@@ -72,44 +67,11 @@ class NewsFeedBody extends React.Component {
     return posts;
   }
 
-  async componentDidMount() {
-    // get user's timeline
-    let user = await getToken();
-    let username = user.username;
-    let posts = [];
-    let globalPosts = [];
-
-    // for testing purposes
-    // posts = [
-    //   {
-    //     post: {
-    //       createdAt: "2021-04-07T06:05:30.913Z",
-    //       downvote: 0,
-    //       id: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       misinformation: 0,
-    //       photos: [],
-    //       text: "",
-    //       title: "I love animals",
-    //       text: "My favorites are dogs",
-    //       topics: ["dog", "cat"],
-    //       totalvote: 0,
-    //       type: "post",
-    //       updatedAt: "2021-04-07T18:48:02.818Z",
-    //       upvote: 0,
-    //       username: "testUser3",
-    //     },
-    //   },
-    // ];
-
-    posts = await this.getPosts(username);
-    globalPosts = await this.getGlobalPosts();
-
-    this.setState({ posts: posts, globalPosts: globalPosts, loading: false });
-  }
-
-  _focus(option) {
+  async _focus(option) {
     if (option != this.state.focus) {
-      this.setState({ focus: option });
+      this.setState({ focus: option, loading: true });
+      await this.componentDidMount();
+      this.setState({ loading: false });
     }
   }
 
@@ -191,6 +153,19 @@ class NewsFeedBody extends React.Component {
       );
     }
   }
+
+  async componentDidMount() {
+    // get user's timeline
+    let user = await getToken();
+    let username = user.username;
+    let posts = [];
+    let globalPosts = [];
+
+    posts = await this.getPosts(username);
+    globalPosts = await this.getGlobalPosts();
+    this.setState({ posts: posts, globalPosts: globalPosts, loading: false });
+  }
+
   render() {
     let newsFeedHeader = this._header();
     let body = this._body();

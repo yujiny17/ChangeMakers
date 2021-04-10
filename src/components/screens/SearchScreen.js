@@ -64,7 +64,9 @@ class SearchScreen extends React.Component {
 
       // filter based on input
       input = input.trim();
-      results = users.filter((user) => this._startsWith(user.username, input));
+      results = users.filter((user) =>
+        this._startsWith(user.username.toLowerCase(), input.toLowerCase())
+      );
 
       // console.log("Results are", results);
       this.setState({ results: results });

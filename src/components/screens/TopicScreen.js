@@ -1,25 +1,18 @@
 import React from "react";
 import {
-  Image,
-  PixelRatio,
+  ActivityIndicator,
   View,
   Text,
   TextInput,
-  FlatList,
   ScrollView,
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { Icon } from "react-native-elements";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { API, graphqlOperation } from "aws-amplify";
-import { S3Image } from "aws-amplify-react-native";
-import Storage from "@aws-amplify/storage";
 
 import {
-  //   listTopicFollowRelationshipsbyFollower,
-  listPostsBySpecificOwner,
   listTopicTimelinesByTopic,
   getTopicFollowRelationship,
 } from "../../graphql/queries";
@@ -37,6 +30,7 @@ class TopicScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: true,
       topic: null,
       user: null,
       posts: [],
@@ -106,12 +100,13 @@ class TopicScreen extends React.Component {
     posts = await this.getPosts(topic);
 
     this.setState({
+      loading: false,
       topic: topic,
       user: user,
       posts: posts,
       followRelationship: followRelationship,
     });
-    console.log("state is now", this.state);
+    // console.log("state is now", this.state);
   }
 
   async follow(toggleFollow) {
@@ -201,26 +196,37 @@ class TopicScreen extends React.Component {
       this.state.followRelationship?.following
     ) {
       return (
-        <TouchableOpacity
-          style={styles.followingButtonContainer}
-          onPress={() => this.follow(false)}
-        >
-          <Text style={styles.followingText}>Following</Text>
-        </TouchableOpacity>
+        <View style={styles.followButtonRow}>
+          <TouchableOpacity
+            style={styles.followingButtonContainer}
+            onPress={() => this.follow(false)}
+          >
+            <Text style={styles.followingText}>Following</Text>
+          </TouchableOpacity>
+        </View>
       );
     } else {
       return (
-        <TouchableOpacity
-          style={styles.followButtonContainer}
-          onPress={() => this.follow(true)}
-        >
-          <Text style={styles.followText}>Follow</Text>
-        </TouchableOpacity>
+        <View style={styles.followButtonRow}>
+          <TouchableOpacity
+            style={styles.followButtonContainer}
+            onPress={() => this.follow(true)}
+          >
+            <Text style={styles.followText}>Follow</Text>
+          </TouchableOpacity>
+        </View>
       );
     }
   }
 
   render() {
+    if (this.state.loading) {
+      return (
+        <View style={styles.container}>
+          <ActivityIndicator size="large" />
+        </View>
+      );
+    }
     let followButton = this._followButton();
     let topic = this.props.route.params.topic;
     // console.log(this.state);
@@ -228,9 +234,9 @@ class TopicScreen extends React.Component {
       <View style={styles.container}>
         <View style={styles.belowAppStatusContainer}>
           <ScrollView contentContainerStyle={styles.profileContainer}>
+            {followButton}
             <View style={styles.topicNameContainer}>
               <Text style={styles.topicName}>{topic}</Text>
-              {followButton}
             </View>
             <View style={styles.postsContainer}>
               {this.state.posts.map((post) => (
@@ -257,7 +263,7 @@ const styles = StyleSheet.create({
     width: 100 + "%",
     backgroundColor: constants.styleConstants.white,
     flexDirection: "column",
-    justifyContent: "flex-end",
+    justifyContent: "center",
     alignItems: "center",
   },
   belowAppStatusContainer: {
@@ -284,15 +290,23 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    padding: 10,
-    borderBottomWidth: constants.styleConstants.betweenPostsWidth,
-    borderBottomColor: constants.styleConstants.grey,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+    // borderBottomWidth: constants.styleConstants.betweenPostsWidth,
+    // borderBottomColor: constants.styleConstants.grey,
+    backgroundColor: constants.styleConstants.orange,
   },
   topicName: {
-    padding: 20,
+    paddingHorizontal: 15,
     fontSize: 35,
   },
-
+  followButtonRow: {
+    width: Dimensions.get("window").width,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    paddingHorizontal: 10,
+    backgroundColor: constants.styleConstants.orange,
+  },
   followingButtonContainer: {
     height: 40,
     width: Dimensions.get("window").width * 0.25,
@@ -301,6 +315,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 5,
     backgroundColor: constants.styleConstants.orange,
+    borderColor: constants.styleConstants.black,
+    borderWidth: 3,
   },
   followButtonContainer: {
     height: 40,
@@ -310,16 +326,16 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 5,
     backgroundColor: constants.styleConstants.white,
-    borderColor: constants.styleConstants.orange,
+    borderColor: constants.styleConstants.black,
     borderWidth: 3,
   },
   followText: {
     fontSize: 20,
-    color: constants.styleConstants.orange,
+    color: constants.styleConstants.black,
   },
   followingText: {
     fontSize: 20,
-    color: constants.styleConstants.offWhite,
+    color: constants.styleConstants.black,
   },
 
   postsContainer: {

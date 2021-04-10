@@ -7,11 +7,8 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { v4 as uuidv4 } from "uuid";
 import { API, Auth, graphqlOperation } from "aws-amplify";
 import { AuthContext } from "../../context/AuthContext";
-
-import { createUser } from "../../graphql/mutations";
 
 import constants from "../../constants/constants";
 import errorMessage from "../ErrorMessage";
@@ -63,20 +60,6 @@ class CreateAccount extends React.Component {
     return allValid;
   }
 
-  async createUserDDB(username, email) {
-    let userInput = { username: username, email: email };
-    try {
-      const resp = await API.graphql(
-        graphqlOperation(createUser, { input: userInput })
-      );
-      console.log("Created user in DDB:", userInput);
-      return resp;
-    } catch (error) {
-      console.log("Create User in DDB Error:", error);
-      return;
-    }
-  }
-
   async _signUp(username, password, email) {
     try {
       const { user } = await Auth.signUp({
@@ -88,11 +71,10 @@ class CreateAccount extends React.Component {
       });
       console.log("Signed up in Cognito for user:", user.username);
 
-      this.createUserDDB(username, email);
-
       this.props.navigation.push("ConfirmEmail", {
         username: username,
         password: password,
+        email: email,
       });
     } catch (error) {
       console.log("ERROR: sign up", error);

@@ -15,17 +15,17 @@ import * as ImagePicker from "expo-image-picker";
 import * as ImageManipulator from "expo-image-manipulator";
 
 import { API, graphqlOperation } from "aws-amplify";
-import { updateUser } from "../../graphql/mutations";
+import { createUser } from "../../graphql/mutations";
 
 import { uploadPhotoS3, uploadPhotoDDB } from "../../actions/Photos";
-import { setUserToken, storeProfilePicture } from "../../UserCredentials";
+import { storeToken, storeProfilePicture } from "../../UserCredentials";
 
 class PickProfilePicture extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      //   username: props.route.params.username,
-      //   password: props.route.params.password,
+      username: props.route.params.username,
+      email: props.route.params.email,
       filepath: null,
       error: "",
     };
@@ -47,6 +47,20 @@ class PickProfilePicture extends React.Component {
     return file;
   }
 
+  async _createUserDDB(username, email, photo) {
+    let userInput = { username: username, email: email, photo: photo };
+    try {
+      const resp = await API.graphql(
+        graphqlOperation(createUser, { input: userInput })
+      );
+      console.log("Created user in DDB:", userInput);
+      return resp;
+    } catch (error) {
+      console.log("Create User in DDB Error:", error);
+      return;
+    }
+  }
+
   async _openImagePicker() {
     let permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
@@ -61,36 +75,32 @@ class PickProfilePicture extends React.Component {
       quality: 1,
     });
 
-    console.log("pickerresult", pickerResult);
+    // console.log("pickerresult", pickerResult);
 
+    let userId = this.props.route.params.username;
+    let photoId;
     let profilePhoto;
     if (!pickerResult.cancelled) {
       let p = await this._processProfileImageAsync(pickerResult.uri);
       profilePhoto = { uri: p.uri, name: p.filename, type: "image/jpg" };
-      console.log("resized picker result to", profilePhoto);
+      // console.log("resized picker result to", profilePhoto);
       this.state.filepath = profilePhoto.uri;
       // store photo in S3 and DDB (photos and user)
       let s3Photo = await uploadPhotoS3(profilePhoto);
-      console.log("promiseS3", s3Photo);
-      let photoId = s3Photo.key;
+      // console.log("promiseS3", s3Photo);
+      photoId = s3Photo.key;
       let ddbPhoto = await uploadPhotoDDB(photoId);
-      console.log("promiseDDB", ddbPhoto);
+      // console.log("promiseDDB", ddbPhoto);
+      profilePhoto = ddbPhoto.data.createPhoto;
 
-      //   profilePhoto = ddbPhoto.data.createPhoto;
-
-      let userId = this.props.route.params.username;
-      //   let userId = "testUser";
-      let input = { username: userId, photo: photoId };
-      let user = await API.graphql(
-        graphqlOperation(updateUser, { input: input })
-      );
-      console.log("updated user", user);
-      setUserToken(userId);
       storeProfilePicture(photoId);
-
       // set user token to finalize log in
-      this.context.setUserToken(userId);
     }
+
+    // finally create user ddb entry
+    this._createUserDDB(userId, this.state.email, photoId);
+
+    this.context.setUserToken(userId);
 
     return;
   }

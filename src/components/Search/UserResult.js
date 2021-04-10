@@ -43,7 +43,7 @@ const UserResult = (props) => {
       <View style={styles.userPhotoName}>
         <View style={styles.userPhotoName2}>
           <View style={styles.userPhotoContainer}>
-            {/* {userPhotoExists ? (
+            {userPhotoExists ? (
               <S3Image imgKey={user.photo} style={styles.userPhoto} />
             ) : (
               <Icon
@@ -52,13 +52,7 @@ const UserResult = (props) => {
                 color="grey"
                 size={50}
               />
-            )} */}
-            <Icon
-              name="account-circle"
-              type="material-community"
-              color="black"
-              size={40}
-            />
+            )}
           </View>
           <View style={styles.userNameContainer}>
             <Text style={styles.userName}>{user.username}</Text>
@@ -96,6 +90,8 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     borderRadius: 25,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "black",
   },
   userNameContainer: {
     height: 100 + "%",

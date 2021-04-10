@@ -18,6 +18,7 @@ class ConfirmEmail extends React.Component {
     this.state = {
       username: props.route.params.username,
       password: props.route.params.password,
+      email: props.route.params.email,
       confirmationCode: "",
       error: "",
     };
@@ -27,11 +28,12 @@ class ConfirmEmail extends React.Component {
     try {
       const user = await Auth.signIn(username, password);
       console.log("Signing in user:", user);
-      storeToken(user.name, user.email);
+      storeToken(username, password);
       // this.context.setUserToken(user.username);
       // commented out to set context only after picking profile
       this.props.navigation.navigate("PickProfilePicture", {
         username: username,
+        email: this.state.email,
       });
     } catch (error) {
       console.log("Error signing in", error);

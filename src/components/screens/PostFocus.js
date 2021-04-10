@@ -36,7 +36,6 @@ class PostFocus extends React.Component {
 
     return (
       <KeyboardAwareScrollView
-        // extraScrollHeight={500}
         style={
           (styles.keyboardContainer,
           {

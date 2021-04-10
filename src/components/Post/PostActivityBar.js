@@ -33,6 +33,7 @@ import {
 import { getProfilePicture, getToken } from "../../UserCredentials";
 
 import constants from "../../constants/constants";
+import { createIconSetFromFontello } from "react-native-vector-icons";
 
 class PostActivityBar extends React.Component {
   constructor(props) {
@@ -89,6 +90,7 @@ class PostActivityBar extends React.Component {
           downvote: false,
           misinformation: false,
         };
+        console.log("tryint to create activity", newActivity);
         const resp = await API.graphql(
           graphqlOperation(createUserPostActivity, { input: newActivity })
         );
@@ -252,7 +254,7 @@ class PostActivityBar extends React.Component {
 
     let userToken = await getToken();
     let photoToken = await getProfilePicture();
-    console.log("user photo token", photoToken);
+    // console.log("user photo token", photoToken);
     let photo;
     if (photoToken != null) {
       photo = photoToken.profilePicture;
@@ -262,108 +264,19 @@ class PostActivityBar extends React.Component {
       photo: photo,
     };
 
-    // FOR TESTING PURPOSES
-    // this.setState({
-    //   loadingActivity: false,
-    //   user: {
-    //     username: "testUser3",
-    //   },
-    //   comments: [
-    //     {
-    //       createdAt: "2021-04-08T02:39:37.080Z",
-    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
-    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       text:
-    //         "I also love animals very much and would like to play with a few someday!",
-    //       updatedAt: "2021-04-08T02:39:37.080Z",
-    //       user: "testuser3",
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       createdAt: "2021-04-08T02:39:37.080Z",
-    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
-    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       text:
-    //         "I also love animals very much and would like to play with a few someday!",
-    //       updatedAt: "2021-04-08T02:39:37.080Z",
-    //       user: "testuser3",
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       createdAt: "2021-04-08T02:39:37.080Z",
-    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
-    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       text:
-    //         "I also love animals very much and would like to play with a few someday!",
-    //       updatedAt: "2021-04-08T02:39:37.080Z",
-    //       user: "testuser3",
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       createdAt: "2021-04-08T02:39:37.080Z",
-    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
-    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       text:
-    //         "I also love animals very much and would like to play with a few someday!",
-    //       updatedAt: "2021-04-08T02:39:37.080Z",
-    //       user: "testuser3",
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       createdAt: "2021-04-08T02:39:37.080Z",
-    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
-    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       text:
-    //         "I also love animals very much and would like to play with a few someday!",
-    //       updatedAt: "2021-04-08T02:39:37.080Z",
-    //       user: "testuser3",
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       createdAt: "2021-04-08T02:39:37.080Z",
-    //       id: "da6ebe87-8a7a-4221-b3f9-33d42eef40db",
-    //       postId: "c4610c7b-981a-458c-9774-955b3fbc05e3",
-    //       text:
-    //         "I also love animals very much and would like to play with a few someday!",
-    //       updatedAt: "2021-04-08T02:39:37.080Z",
-    //       user: "testuser3",
-    //       username: "testUser3",
-    //     },
-    //   ],
-    //   commentUsers: [
-    //     {
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       username: "testUser3",
-    //     },
-    //     {
-    //       username: "testUser3",
-    //     },
-    //   ],
-    // });
-    // return;
-
     let activity = await this.loadUserActivity(user.username);
     let post = this.props.post;
 
     // retrieved activity has extra fields _version, _deleted, _lastChangedAt
-    stateActivity = {
-      username: activity.username,
-      postId: activity.postId,
-      upvote: activity.upvote,
-      downvote: activity.downvote,
-      misinformation: activity.misinformation,
-    };
+    if (activity != null) {
+      stateActivity = {
+        username: activity.username,
+        postId: activity.postId,
+        upvote: activity.upvote,
+        downvote: activity.downvote,
+        misinformation: activity.misinformation,
+      };
+    }
     (userMisinformation = stateActivity.misinformation),
       (statePost = {
         id: post.id,
@@ -608,9 +521,11 @@ class PostActivityBar extends React.Component {
   async submitComment() {
     this.commentRef.current.blur();
     let comment;
+    let username = this.state.user.username;
+    let commentUsers = this.state.commentUsers;
     try {
       const input = {
-        username: this.state.user.username,
+        username: username,
         postId: this.state.post.id,
         text: this.state.userComment,
       };
@@ -625,7 +540,8 @@ class PostActivityBar extends React.Component {
     }
     let comments = this.state.comments;
     comments.push(comment);
-    this.setState({ comments: comments });
+    commentUsers.push(this.state.user);
+    this.setState({ comments: comments, commentUsers: commentUsers });
   }
 
   async _getUsersofComments(comments) {
@@ -648,23 +564,14 @@ class PostActivityBar extends React.Component {
 
   _displayComments() {
     let comments = this.state.comments;
-    if (comments == null || comments?.length <= 0 || !this.props.focused)
-      return;
-    let users = this.state.commentUsers;
-    // console.log("users of comments are", users);
-
     let commentBar = this._commentBar();
 
+    if (comments == null || comments?.length <= 0 || !this.props.focused) {
+      return <View style={{ width: 100 + "%" }}>{commentBar}</View>;
+    }
+    let users = this.state.commentUsers;
+
     return (
-      // <ScrollView
-      //   style={{
-      //     width: 100 + "%",
-      //   }}
-      //   contentContainerStyle={{
-      //     flexDirection: "column",
-      //     justifyContent: "flex-end",
-      //   }}
-      // >
       <View style={{ width: 100 + "%" }}>
         {comments.map((comment, i) => (
           <TouchableOpacity
@@ -712,8 +619,6 @@ class PostActivityBar extends React.Component {
           </TouchableOpacity>
         ))}
         {commentBar}
-        {/* </ScrollView> */}
-        {/* </KeyboardAwareScrollView> */}
       </View>
     );
   }
@@ -726,12 +631,17 @@ class PostActivityBar extends React.Component {
     this.scroll.props.scrollToFocusedInput(reactNode);
   }
   _commentBar() {
+    let photoExists = false;
+    if (this.state.user.photo != null) photoExists = true;
     if (this.props.focused) {
       return (
         <View style={styles.commentBar}>
           <View style={styles.userPhoto}>
-            {this.state.user?.photo ? (
-              <S3Image imgKey={this.state.user.photo} />
+            {photoExists ? (
+              <S3Image
+                imgKey={this.state.user.photo}
+                style={styles.userPhoto}
+              />
             ) : (
               <Icon
                 name="account-circle"
@@ -789,44 +699,44 @@ class PostActivityBar extends React.Component {
     let commentButton = this._commentButton();
     let comments = this._displayComments();
     let commentBar = this._commentBar();
+
     // if loading return generic user bar with no actions
     if (this.state.loadingActivity) {
-      return null;
-      // return (
-      //   <View style={styles.container}>
-      //     {publicMisinformation}
-      //     <View style={styles.iconBar}>
-      //       <View style={styles.voteContainer}>
-      //         <Icon
-      //           name="arrow-up-outline"
-      //           type="ionicon"
-      //           size={25}
-      //           color={constants.styleConstants.black}
-      //         />
-      //         <View
-      //           style={{
-      //             height: 100 + "%",
-      //             justifyContent: "center",
-      //             marginHorizontal: 5,
-      //           }}
-      //         ></View>
-      //         <Icon
-      //           name="arrow-down-outline"
-      //           type="ionicon"
-      //           size={25}
-      //           color={constants.styleConstants.black}
-      //         />
-      //       </View>
-      //       <Icon
-      //         name="comment"
-      //         type="evilicon"
-      //         size={constants.styleConstants.iconSize}
-      //         color={constants.styleConstants.black}
-      //         containerStyle={{ flex: 1 }}
-      //       />
-      //     </View>
-      //   </View>
-      // );
+      return (
+        <View style={styles.container}>
+          {publicMisinformation}
+          <View style={styles.iconBar}>
+            <View style={styles.voteContainer}>
+              <Icon
+                name="arrow-up-outline"
+                type="ionicon"
+                size={25}
+                color={constants.styleConstants.black}
+              />
+              <View
+                style={{
+                  height: 100 + "%",
+                  justifyContent: "center",
+                  marginHorizontal: 5,
+                }}
+              ></View>
+              <Icon
+                name="arrow-down-outline"
+                type="ionicon"
+                size={25}
+                color={constants.styleConstants.black}
+              />
+            </View>
+            <Icon
+              name="comment"
+              type="evilicon"
+              size={constants.styleConstants.iconSize}
+              color={constants.styleConstants.black}
+              containerStyle={{ flex: 1 }}
+            />
+          </View>
+        </View>
+      );
     }
     // once user activity has loaded
     else {
@@ -1036,6 +946,8 @@ const styles = StyleSheet.create({
     height: 40,
     width: 40,
     borderRadius: 20,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: "black",
   },
   commentContainer: {
     width: Dimensions.get("window").width * 0.8,
